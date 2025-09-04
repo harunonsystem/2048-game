@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>2048ゲーム</title>
+        <link rel="stylesheet" href="src/style.css" />
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>2048</h1>
+                <div class="header-right">
+                    <button id="lang-toggle" class="lang-button">
+                        <span class="flag-icon" id="flag-icon">🇺🇸</span>
+                    </button>
+                    <div class="score-container">
+                        <div class="score-box">
+                            <span class="score-label" data-i18n="score"
+                                >スコア</span
+                            >
+                            <span id="score" class="score-value">0</span>
+                        </div>
+                        <div class="score-box">
+                            <span class="score-label" data-i18n="best"
+                                >ベスト</span
+                            >
+                            <span id="best-score" class="score-value">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-intro">
+                <p>
+                    <strong data-i18n="howToPlay">遊び方：</strong>
+                    <span data-i18n="instructions"
+                        >矢印キーを使ってタイルを動かし、同じ数字のタイルを合成して2048を目指しましょう！</span
+                    >
+                </p>
+                <button
+                    id="restart-btn"
+                    class="restart-button"
+                    data-i18n="newGame"
+                >
+                    新しいゲーム
+                </button>
+            </div>
+
+            <div id="game-board" class="game-board">
+                <div class="grid-container">
+                    <!-- 16個のセルを生成 -->
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+                <div id="tile-container" class="tile-container">
+                    <!-- ダイナミックに生成されるタイル -->
+                </div>
+            </div>
+
+            <div class="mode-selector">
+                <button
+                    id="mode-2048"
+                    class="mode-button active"
+                    data-target="2048"
+                >
+                    2048
+                </button>
+                <button id="mode-4096" class="mode-button" data-target="4096">
+                    4096
+                </button>
+                <button id="mode-8192" class="mode-button" data-target="8192">
+                    8192
+                </button>
+                <button id="mode-16384" class="mode-button" data-target="16384">
+                    16384
+                </button>
+            </div>
+
+            <div id="game-message" class="game-message hidden">
+                <div class="message-backdrop"></div>
+                <div class="message-content">
+                    <div
+                        class="celebration-effects"
+                        id="celebration-effects"
+                    ></div>
+                    <div id="result-icon" class="result-icon"></div>
+                    <h2 id="message-text"></h2>
+                    <div id="result-subtitle" class="result-subtitle"></div>
+
+                    <div id="result-details" class="result-details">
+                        <div class="result-stat">
+                            <span class="stat-label" data-i18n="finalScore"
+                                >最終スコア</span
+                            >
+                            <span id="final-score" class="stat-value">0</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-label" data-i18n="bestScore"
+                                >ベストスコア</span
+                            >
+                            <span id="result-best-score" class="stat-value"
+                                >0</span
+                            >
+                        </div>
+                        <div class="result-stat" id="highest-tile-stat">
+                            <span class="stat-label" data-i18n="highestTile"
+                                >最高タイル</span
+                            >
+                            <span id="highest-tile" class="stat-value">0</span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <div class="primary-buttons">
+                            <button
+                                id="continue-btn"
+                                class="continue-button hidden"
+                                data-i18n="continueGame"
+                            >
+                                続ける
+                            </button>
+                            <button
+                                id="try-again-btn"
+                                class="try-again-button"
+                                data-i18n="tryAgain"
+                            >
+                                もう一度
+                            </button>
+                        </div>
+
+                        <div class="share-section">
+                            <div class="share-text" data-i18n="shareResult">
+                                結果をシェア
+                            </div>
+                            <div class="share-buttons">
+                                <button
+                                    id="share-x-btn"
+                                    class="share-button share-x"
+                                    title="X (Twitter)でシェア"
+                                >
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        width="16"
+                                        height="16"
+                                    >
+                                        <path
+                                            fill="currentColor"
+                                            d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"
+                                        />
+                                    </svg>
+                                </button>
+                                <button
+                                    id="copy-result-btn"
+                                    class="share-button share-copy"
+                                    title="結果をコピー"
+                                >
+                                    📋
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="module" src="src/main.js"></script>
+    </body>
+</html>
