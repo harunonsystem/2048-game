@@ -1,0 +1,75 @@
+name: Delete Worker on PR Close or Merge
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete-worker:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.ref != 'main'
+    steps:
+      - name: Set Worker Name
+        id: worker-name
+        run: |
+          WORKER_NAME="mini-games-app-pr-${{ github.event.pull_request.number }}"
+          echo "worker_name=$WORKER_NAME" >> $GITHUB_OUTPUT
+          echo "Worker name: $WORKER_NAME"
+
+      - name: Check if Worker exists
+        id: check-worker
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/workers/services/${{ steps.worker-name.outputs.worker_name }}")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "HTTP Code: $HTTP_CODE"
+          echo "Response: $BODY"
+
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "worker_exists=true" >> $GITHUB_OUTPUT
+            echo "Worker exists, will proceed with deletion"
+          else
+            echo "worker_exists=false" >> $GITHUB_OUTPUT
+            echo "Worker does not exist or error occurred"
+          fi
+
+      - name: Delete Cloudflare Worker
+        if: steps.check-worker.outputs.worker_exists == 'true'
+        run: |
+          echo "Deleting worker: ${{ steps.worker-name.outputs.worker_name }}"
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X DELETE \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/workers/services/${{ steps.worker-name.outputs.worker_name }}")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "HTTP Code: $HTTP_CODE"
+          echo "Response: $BODY"
+
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Worker deleted successfully"
+          else
+            echo "❌ Failed to delete worker"
+            echo "Response: $BODY"
+            exit 1
+          fi
+
+      - name: Worker deletion summary
+        run: |
+          if [ "${{ steps.check-worker.outputs.worker_exists }}" = "true" ]; then
+            echo "🗑️ Worker ${{ steps.worker-name.outputs.worker_name }} has been deleted"
+          else
+            echo "ℹ️ Worker ${{ steps.worker-name.outputs.worker_name }} did not exist"
+          fi
+
+          if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+            echo "📝 PR was merged"
+          else
+            echo "📝 PR was closed without merging"
+          fi

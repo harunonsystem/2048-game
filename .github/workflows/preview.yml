@@ -1,13 +1,15 @@
-name: Deploy to Production
+name: Deploy to Preview
 
 on:
   push:
+    branches-ignore: [main]
+  pull_request:
     branches: [main]
 
 jobs:
-  deploy-production:
+  deploy-preview:
     runs-on: ubuntu-latest
-    environment: production
+    environment: preview
 
     steps:
       - name: Checkout
@@ -30,4 +32,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy -e production
+          command: deploy -e preview
