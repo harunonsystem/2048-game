@@ -21,3 +21,11 @@ name = "2048-game-preview"
 [env.preview.vars]
 NODE_VERSION = "24"
 ENVIRONMENT = "preview"
+
+# Production environment
+[env.production]
+name = "2048-game"
+
+[env.production.vars]
+NODE_VERSION = "24"
+ENVIRONMENT = "production"
