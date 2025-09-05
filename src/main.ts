@@ -7,6 +7,7 @@ import type {
   TileData,
   TouchData,
 } from "./types";
+import translationsData from "./translations.json";
 
 class TranslationManager {
   private translations: Translations | null = null;
@@ -14,66 +15,8 @@ class TranslationManager {
   async loadTranslations(): Promise<Translations> {
     if (this.translations) return this.translations;
 
-    try {
-      const response = await fetch("./src/translations.json");
-      this.translations = (await response.json()) as Translations;
-      return this.translations;
-    } catch (error) {
-      console.error("Failed to load translations:", error);
-      // Fallback translations
-      return {
-        ja: {
-          score: "スコア",
-          best: "ベスト",
-          howToPlay: "",
-          instructions: "",
-          newGame: "",
-          tryAgain: "",
-          continueGame: "",
-          finalScore: "",
-          bestScore: "",
-          highestTile: "",
-          shareResult: "",
-          congratulations: "",
-          achievement2048: "",
-          achievement4096: "",
-          achievement8192: "",
-          achievement16384: "",
-          achievement32768: "",
-          achievement65536: "",
-          keepGoing: "",
-          gameOver: "",
-          noMovesLeft: "",
-          newRecord: "",
-          wellDone: "",
-        },
-        en: {
-          score: "Score",
-          best: "Best",
-          howToPlay: "",
-          instructions: "",
-          newGame: "",
-          tryAgain: "",
-          continueGame: "",
-          finalScore: "",
-          bestScore: "",
-          highestTile: "",
-          shareResult: "",
-          congratulations: "",
-          achievement2048: "",
-          achievement4096: "",
-          achievement8192: "",
-          achievement16384: "",
-          achievement32768: "",
-          achievement65536: "",
-          keepGoing: "",
-          gameOver: "",
-          noMovesLeft: "",
-          newRecord: "",
-          wellDone: "",
-        },
-      };
-    }
+    this.translations = translationsData as Translations;
+    return this.translations;
   }
 
   getTranslation(lang: Language, key: keyof Translation): string {
