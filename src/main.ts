@@ -404,6 +404,7 @@ class Game2048 {
 
   private updateTileElement(element: HTMLElement, value: number): void {
     element.className = `tile tile-${value}`;
+    element.textContent = value.toString();
     if (value > 2048) {
       element.classList.add("super");
     }
