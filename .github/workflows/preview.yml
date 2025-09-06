@@ -24,6 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: preview
     needs: test
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
 
     steps:
       - name: Checkout
@@ -37,9 +41,90 @@ jobs:
         with:
           skip-tests: "true"
 
+      - name: Update wrangler.toml for preview
+        if: github.event_name == 'pull_request'
+        run: |
+          # preview環境の名前を動的に設定
+          sed -i 's/name = "2048-game-preview"/name = "2048-game-pr-${{ github.event.pull_request.number }}"/' wrangler.toml
+          echo "Updated wrangler.toml:"
+          cat wrangler.toml
+
       - name: Deploy to Preview
+        id: deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy -e preview
+
+      - name: Set deploy outputs
+        if: github.event_name == 'pull_request'
+        id: set-outputs
+        run: |
+          if [ "${{ steps.deploy.outcome }}" == "success" ]; then
+            # PR番号からURLを生成
+            PR_NUMBER=${{ github.event.pull_request.number }}
+            DEPLOY_URL="https://2048-game-pr-${PR_NUMBER}.harunonsystem.workers.dev"
+            echo "url=${DEPLOY_URL}" >> $GITHUB_OUTPUT
+            echo "success=true" >> $GITHUB_OUTPUT
+            echo "Deployment successful: ${DEPLOY_URL}"
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "error_message=Deployment failed - check workflow logs for details" >> $GITHUB_OUTPUT
+            echo "Deployment failed"
+          fi
+
+      - name: Comment PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request' && always()
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const deployedUrl = '${{ steps.set-outputs.outputs.url }}';
+            const deploySuccess = '${{ steps.set-outputs.outputs.success }}' === 'true';
+            const errorMessage = '${{ steps.set-outputs.outputs.error_message }}';
+            const fallbackUrl = `https://2048-game-pr-${prNumber}.harunonsystem.workers.dev`;
+            const previewUrl = deployedUrl || fallbackUrl;
+
+            const statusIcon = deploySuccess ? '✅' : '❌';
+            const statusText = deploySuccess ? 'Success' : 'Failed';
+
+            let body = `## 🚀 Preview Deployment
+
+            **Preview URL:** ${deploySuccess ? `[${previewUrl}](${previewUrl})` : '[Deploy failed - check logs](https://github.com/${{ github.repository }}/actions)'}
+
+            **Build Status:** ${statusIcon} ${statusText}
+            **Commit:** ${context.sha.substring(0, 7)}
+            **Branch:** \`${context.payload.pull_request.head.ref}\`
+
+            ${deploySuccess ? 'This preview will be automatically updated when you push new commits to this PR.' : 'Please check the workflow logs for details.'}`;
+
+            // Find existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const existingComment = comments.data.find(
+              comment => comment.user.login === 'github-actions[bot]' &&
+                         comment.body.includes('🚀 Preview Deployment')
+            );
+
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: body
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: body
+              });
+            }
