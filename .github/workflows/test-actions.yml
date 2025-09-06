@@ -1,0 +1,24 @@
+name: Test Actions (Manual Trigger)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-composite-actions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test Setup Node and Dependencies
+        uses: ./.github/actions/setup-node-deps
+
+      - name: Test Build and Test Action
+        uses: ./.github/actions/test-and-build
+
+      - name: Verify files exist
+        run: |
+          echo "Checking build output..."
+          ls -la dist/
+          echo "Build verification complete!"

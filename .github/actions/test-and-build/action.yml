@@ -1,0 +1,30 @@
+name: "Test and Build"
+description: "Run TypeScript checks, tests, and build the project"
+
+inputs:
+  skip-tests:
+    description: "Skip running tests (useful for deploy-only jobs)"
+    required: false
+    default: "false"
+
+outputs:
+  build-success:
+    description: "Whether build was successful"
+    value: ${{ steps.build.outcome }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run TypeScript check
+      shell: bash
+      run: npm run typecheck
+
+    - name: Run tests
+      if: inputs.skip-tests != 'true'
+      shell: bash
+      run: npm run test:run
+
+    - name: Build project
+      id: build
+      shell: bash
+      run: npm run build

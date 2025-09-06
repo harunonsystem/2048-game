@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -14,5 +15,10 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ["@rollup/rollup-linux-x64-gnu", "@rollup/rollup-linux-x64-musl"],
+  },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./tests/setup.ts"],
   },
 });

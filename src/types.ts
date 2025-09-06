@@ -29,8 +29,8 @@ export interface Translations {
   en: Translation;
 }
 
-export type Language = 'ja' | 'en';
-export type Direction = 'left' | 'right' | 'up' | 'down';
+export type Language = "ja" | "en";
+export type Direction = "left" | "right" | "up" | "down";
 export type GameMode = 2048 | 4096 | 8192 | 16384 | 32768 | 65536;
 
 export interface GameState {
