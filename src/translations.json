@@ -22,7 +22,8 @@
     "gameOver": "ゲームオーバー",
     "noMovesLeft": "動かせるタイルがありません",
     "newRecord": "新記録！",
-    "wellDone": "よくできました！"
+    "wellDone": "よくできました！",
+    "contact": "お問い合わせ"
   },
   "en": {
     "score": "Score",
@@ -47,6 +48,7 @@
     "gameOver": "Game Over",
     "noMovesLeft": "No moves available",
     "newRecord": "New Record!",
-    "wellDone": "Well Done!"
+    "wellDone": "Well Done!",
+    "contact": "Contact"
   }
 }

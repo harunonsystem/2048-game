@@ -598,19 +598,20 @@ class Game2048 {
   private updateMessageButtons(isWin: boolean): void {
     if (!this.translations) return;
 
+    console.log("updateMessageButtons:", { isWin, gameOver: this.gameOver });
     const tryAgainBtn = document.getElementById("try-again-btn")!;
 
     if (isWin && !this.gameOver) {
       this.continueButton.classList.remove("hidden");
-      tryAgainBtn.classList.add("secondary");
       tryAgainBtn.style.order = "2";
 
       const newGameText = this.translations[this.currentLanguage].newGame;
       tryAgainBtn.setAttribute("data-i18n", "newGame");
       tryAgainBtn.textContent = newGameText;
     } else {
+      // Game over or lose - hide continue button
+      console.log("Hiding continue button");
       this.continueButton.classList.add("hidden");
-      tryAgainBtn.classList.remove("secondary");
       tryAgainBtn.style.order = "1";
 
       const tryAgainText = this.translations[this.currentLanguage].tryAgain;
