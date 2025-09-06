@@ -12,7 +12,7 @@ jobs:
       - name: Set Worker Name
         id: worker-name
         run: |
-          WORKER_NAME="mini-games-app-pr-${{ github.event.pull_request.number }}"
+          WORKER_NAME="2048-game-pr-${{ github.event.pull_request.number }}"
           echo "worker_name=$WORKER_NAME" >> $GITHUB_OUTPUT
           echo "Worker name: $WORKER_NAME"
 
