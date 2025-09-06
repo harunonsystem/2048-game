@@ -18,7 +18,7 @@ export class DebugManager {
     this.createDebugPanel();
   }
 
-  private createDebugPanel(): void {
+  protected createDebugPanel(): void {
     // Create debug panel element
     const debugPanel = document.createElement("div");
     debugPanel.id = "debug-panel";
