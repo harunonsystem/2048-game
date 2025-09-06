@@ -13,8 +13,6 @@ jobs:
 
       - name: Test Setup Node and Dependencies
         uses: ./.github/actions/setup-node-deps
-        with:
-          node-version: "22"
 
       - name: Test Build and Test Action
         uses: ./.github/actions/test-and-build

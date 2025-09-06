@@ -1,25 +1,25 @@
-name: 'Setup Node.js and Dependencies'
-description: 'Setup Node.js environment and install npm dependencies with caching'
+name: "Setup Node.js and Dependencies"
+description: "Setup Node.js environment and install npm dependencies with caching"
 
 inputs:
   node-version:
-    description: 'Node.js version to use'
+    description: "Node.js version to use (optional, will use .node-version file by default)"
     required: false
-    default: '22'
+    default: ""
 
 outputs:
   cache-hit:
-    description: 'Whether npm cache was hit'
+    description: "Whether npm cache was hit"
     value: ${{ steps.cache-deps.outputs.cache-hit }}
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ inputs.node-version }}
-        cache: 'npm'
+        node-version: ${{inputs.node-version}}
+        cache: "npm"
 
     - name: Install dependencies
       shell: bash
