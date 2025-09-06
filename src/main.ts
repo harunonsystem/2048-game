@@ -9,6 +9,8 @@ import type {
 } from "./types";
 import translationsData from "./translations.json";
 
+// Development-only debug functionality will be imported dynamically
+
 class TranslationManager {
   private translations: Translations | null = null;
 
@@ -28,21 +30,22 @@ class Game2048 {
   private translationManager: TranslationManager;
   private translations: Translations | null = null;
   private currentLanguage: Language;
+  private debugManager: any = null;
 
   // Game state
-  private board: (TileData | null)[][];
-  private score: number;
+  public board: (TileData | null)[][];
+  public score: number;
   private bestScore: number;
-  private gameWon: boolean;
-  private gameOver: boolean;
+  public gameWon: boolean;
+  public gameOver: boolean;
   private tileElements: Map<number, HTMLElement>;
   private tileIdCounter: number;
 
   // Achievement system
-  private readonly achievementLevels: readonly GameMode[] = [
+  public readonly achievementLevels: readonly GameMode[] = [
     2048, 4096, 8192, 16384, 32768, 65536,
   ] as const;
-  private currentTargetLevel: number;
+  public currentTargetLevel: number;
   private completedLevels: Set<GameMode>;
 
   // DOM elements
@@ -181,6 +184,9 @@ class Game2048 {
       });
 
     this.setupTouchEvents();
+
+    // Setup debug controls asynchronously (development only)
+    this.setupDebugControls();
   }
 
   private setupTouchEvents(): void {
@@ -333,7 +339,7 @@ class Game2048 {
         filtered[i].value *= 2;
         this.score += filtered[i].value;
         this.removeTile(filtered[i + 1]);
-        filtered[i + 1] = null as any; // Will be filtered out
+        filtered.splice(i + 1, 1); // Remove the merged tile from array
         moved = true;
 
         // Add merge animation
@@ -345,10 +351,7 @@ class Game2048 {
       }
     }
 
-    const finalFiltered = filtered.filter(
-      (tile): tile is TileData => tile !== null,
-    );
-    const result: (TileData | null)[] = [...finalFiltered];
+    const result: (TileData | null)[] = [...filtered];
     while (result.length < 4) {
       result.push(null);
     }
@@ -386,7 +389,7 @@ class Game2048 {
     }
   }
 
-  private createTileObject(value: number, row: number, col: number): TileData {
+  public createTileObject(value: number, row: number, col: number): TileData {
     const id = ++this.tileIdCounter;
     const tileObj: TileData = { id, value, row, col };
 
@@ -437,7 +440,7 @@ class Game2048 {
     }
   }
 
-  private removeTile(tileObj: TileData): void {
+  public removeTile(tileObj: TileData): void {
     const element = this.tileElements.get(tileObj.id);
     if (element) {
       element.remove();
@@ -445,7 +448,7 @@ class Game2048 {
     }
   }
 
-  private updateScore(): void {
+  public updateScore(): void {
     this.scoreElement.textContent = this.score.toString();
     if (this.score > this.bestScore) {
       this.bestScore = this.score;
@@ -454,7 +457,7 @@ class Game2048 {
     this.bestScoreElement.textContent = this.bestScore.toString();
   }
 
-  private async checkGameState(): Promise<void> {
+  public async checkGameState(): Promise<void> {
     this.updateScore();
 
     if (!this.gameWon) {
@@ -629,27 +632,29 @@ class Game2048 {
   private generateShareText(): string {
     const highestTile = this.getHighestTileValue();
     const isJapanese = this.currentLanguage === "ja";
+    const gameUrl = window.location.href;
 
     if (isJapanese) {
       return (
         `2048ゲームで${highestTile}タイルを達成！\n` +
         `スコア: ${this.score.toLocaleString()}\n` +
-        `あなたも挑戦してみませんか？`
+        `あなたも挑戦してみませんか？\n` +
+        `${gameUrl}`
       );
     } else {
       return (
         `I reached ${highestTile} tile in 2048!\n` +
         `Score: ${this.score.toLocaleString()}\n` +
-        `Try it yourself!`
+        `Try it yourself!\n` +
+        `${gameUrl}`
       );
     }
   }
 
   private shareToX(): void {
     const text = this.generateShareText();
-    const url = encodeURIComponent(window.location.href);
     const tweetText = encodeURIComponent(text);
-    const xUrl = `https://x.com/intent/tweet?text=${tweetText}&url=${url}`;
+    const xUrl = `https://x.com/intent/tweet?text=${tweetText}`;
     window.open(xUrl, "_blank", "width=600,height=400");
   }
 
@@ -749,6 +754,22 @@ class Game2048 {
           parseInt(btn.dataset.target!) === targetValue,
         );
       });
+  }
+
+  // Debug functionality (Development only)
+  private async setupDebugControls(): Promise<void> {
+    // Only load debug functionality in development environment
+    if (import.meta.env.PROD) {
+      return;
+    }
+
+    try {
+      const { DebugManager } = await import("./debug");
+      this.debugManager = new DebugManager(this);
+      this.debugManager.setupDebugControls();
+    } catch (error) {
+      console.warn("Debug functionality not available:", error);
+    }
   }
 }
 

@@ -12,7 +12,6 @@ binding = "ASSETS"
 [vars]
 NODE_VERSION = "24"
 ENVIRONMENT = "production"
-routes = [{ pattern = "2048.harunon.club/*", zone_name = "harunon.club" }]
 
 # Preview environment for PR deployments
 [env.preview]
@@ -29,3 +28,7 @@ name = "2048-game"
 [env.production.vars]
 NODE_VERSION = "24"
 ENVIRONMENT = "production"
+
+[[env.production.routes]]
+pattern = "2048.harunon.club/*"
+zone_name = "harunon.club"
