@@ -479,7 +479,7 @@ class Game2048 {
             if (tile.value >= level && !this.completedLevels.has(level)) {
               this.completedLevels.add(level);
 
-              if (i >= this.currentTargetLevel) {
+              if (i === this.currentTargetLevel) {
                 this.gameWon = true;
                 this.currentTargetLevel = Math.max(
                   this.currentTargetLevel,
