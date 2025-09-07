@@ -474,21 +474,21 @@ class Game2048 {
       for (let col = 0; col < 4; col++) {
         const tile = this.board[row][col];
         if (tile) {
-          for (let i = 0; i < this.achievementLevels.length; i++) {
-            const level = this.achievementLevels[i];
+          for (const level of this.achievementLevels) {
             if (tile.value >= level && !this.completedLevels.has(level)) {
               this.completedLevels.add(level);
 
-              if (i >= this.currentTargetLevel) {
+              // Only show achievement and win if we hit the current target level
+              if (level === this.currentTargetLevel) {
                 this.gameWon = true;
-                this.currentTargetLevel = Math.max(
-                  this.currentTargetLevel,
-                  i + 1,
-                );
+                // Update target to next level if available
+                const currentIndex = this.achievementLevels.indexOf(level);
+                if (currentIndex < this.achievementLevels.length - 1) {
+                  this.currentTargetLevel = this.achievementLevels[currentIndex + 1];
+                }
+                await this.showAchievement(level);
+                return;
               }
-
-              await this.showAchievement(level);
-              if (this.gameWon) return;
             }
           }
         }
@@ -598,7 +598,6 @@ class Game2048 {
   private updateMessageButtons(isWin: boolean): void {
     if (!this.translations) return;
 
-    console.log("updateMessageButtons:", { isWin, gameOver: this.gameOver });
     const tryAgainBtn = document.getElementById("try-again-btn")!;
 
     if (isWin && !this.gameOver) {
@@ -610,7 +609,6 @@ class Game2048 {
       tryAgainBtn.textContent = newGameText;
     } else {
       // Game over or lose - hide continue button
-      console.log("Hiding continue button");
       this.continueButton.classList.add("hidden");
       tryAgainBtn.style.order = "1";
 
@@ -665,7 +663,6 @@ class Game2048 {
       await navigator.clipboard.writeText(text);
       this.showCopyFeedback();
     } catch (err) {
-      console.log("Copy failed:", err);
       this.fallbackCopyText(text);
     }
   }
@@ -690,7 +687,7 @@ class Game2048 {
     try {
       document.execCommand("copy");
     } catch (err) {
-      console.log("Fallback copy failed:", err);
+      // Silently fail - copy functionality is not critical
     }
     document.body.removeChild(textArea);
   }
@@ -726,7 +723,7 @@ class Game2048 {
 
   private loadGameMode(): number {
     const saved = localStorage.getItem("gameMode");
-    return saved ? parseInt(saved) : 0;
+    return saved ? parseInt(saved) : 2048; // Default to 2048 mode
   }
 
   private saveGameMode(): void {
@@ -735,10 +732,9 @@ class Game2048 {
 
   private changeGameMode(button: HTMLButtonElement): void {
     const targetValue = parseInt(button.dataset.target!);
-    const targetIndex = this.achievementLevels.indexOf(targetValue as GameMode);
-
-    if (targetIndex !== -1) {
-      this.currentTargetLevel = targetIndex;
+    
+    if (this.achievementLevels.includes(targetValue as GameMode)) {
+      this.currentTargetLevel = targetValue;
       this.saveGameMode();
       this.updateModeButtons();
       this.restart();
@@ -746,13 +742,12 @@ class Game2048 {
   }
 
   private updateModeButtons(): void {
-    const targetValue = this.achievementLevels[this.currentTargetLevel];
     document
       .querySelectorAll<HTMLButtonElement>(".mode-button")
       .forEach((btn) => {
         btn.classList.toggle(
           "active",
-          parseInt(btn.dataset.target!) === targetValue,
+          parseInt(btn.dataset.target!) === this.currentTargetLevel,
         );
       });
   }
