@@ -32,7 +32,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           # preview環境の名前を動的に設定
-          sed -i 's/name = "2048-game-preview"/name = "2048-game-pr-${{ github.event.pull_request.number }}"/' wrangler.toml
+          sed -i '/\[env\.preview\]/a name = "2048-game-pr-${{ github.event.pull_request.number }}"' wrangler.toml
           echo "Updated wrangler.toml:"
           cat wrangler.toml
 

@@ -71,8 +71,11 @@ class TestableGame2048 {
   private gameOver: boolean = false;
   private tileElements: Map<number, HTMLElement> = new Map();
   private tileIdCounter: number = 0;
-  private currentTargetLevel: number = 0;
+  private currentTargetLevel: number = 2048; // Direct game mode value instead of index
   private completedLevels: Set<number> = new Set();
+  public readonly achievementLevels: readonly number[] = [
+    2048, 4096, 8192, 16384, 32768, 65536,
+  ] as const;
 
   constructor() {
     this.translationManager = new MockTranslationManager();
@@ -182,15 +185,30 @@ class TestableGame2048 {
     );
   }
 
+  // FIXED: Updated to use direct game mode values instead of indices
   public async checkAchievements(): Promise<void> {
     for (let row = 0; row < 4; row++) {
       for (let col = 0; col < 4; col++) {
         const tile = this.board[row][col];
-        if (tile && tile.value >= 2048 && !this.completedLevels.has(2048)) {
-          this.completedLevels.add(2048);
-          this.gameWon = true;
-          await this.showAchievement(2048);
-          return;
+        if (tile) {
+          for (const level of this.achievementLevels) {
+            if (tile.value >= level && !this.completedLevels.has(level)) {
+              this.completedLevels.add(level);
+
+              // Only show achievement and win if we hit the current target level
+              if (level === this.currentTargetLevel) {
+                this.gameWon = true;
+                // Update target to next level if available
+                const currentIndex = this.achievementLevels.indexOf(level);
+                if (currentIndex < this.achievementLevels.length - 1) {
+                  this.currentTargetLevel =
+                    this.achievementLevels[currentIndex + 1];
+                }
+                await this.showAchievement(level);
+                return;
+              }
+            }
+          }
         }
       }
     }
@@ -203,7 +221,11 @@ class TestableGame2048 {
     const congratsMsg = t.congratulations;
     const achievementMsg = t.achievement2048;
 
-    this.showMessage(`${congratsMsg}\n${achievementMsg}`, true, t.wellDone);
+    this.showMessage(
+      `${congratsMsg}\n${achievementMsg}`,
+      this.gameWon,
+      t.wellDone,
+    );
   }
 
   private showMessage(
@@ -271,6 +293,12 @@ class TestableGame2048 {
   }
   public getBoard(): (any | null)[][] {
     return this.board;
+  }
+  public setCurrentTargetLevel(level: number): void {
+    this.currentTargetLevel = level;
+  }
+  public getCurrentTargetLevel(): number {
+    return this.currentTargetLevel;
   }
 }
 
@@ -446,6 +474,106 @@ describe("Game2048", () => {
       // Check that message is not displayed
       const gameMessage = document.getElementById("game-message")!;
       expect(gameMessage.classList.contains("hidden")).toBe(true);
+    });
+  });
+
+  describe("Game Mode Win Conditions", () => {
+    it("should not win at 2048 when in 4096 mode", async () => {
+      // Set target to 4096 mode
+      game.setCurrentTargetLevel(4096);
+
+      // Create a board with a 2048 tile
+      game.createTestBoard([
+        [2048, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+      ]);
+
+      await game.checkAchievements();
+
+      // Should NOT win at 2048 when target is 4096
+      expect(game.getGameWon()).toBe(false);
+
+      // No achievement message should be displayed (2048 is not the target in 4096 mode)
+      const gameMessage = document.getElementById("game-message")!;
+      expect(gameMessage.classList.contains("hidden")).toBe(true);
+    });
+
+    it("should win at 4096 when in 4096 mode", async () => {
+      // Set target to 4096 mode
+      game.setCurrentTargetLevel(4096);
+
+      // Create a board with a 4096 tile
+      game.createTestBoard([
+        [4096, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+      ]);
+
+      await game.checkAchievements();
+
+      // Should win at 4096 when target is 4096
+      expect(game.getGameWon()).toBe(true);
+
+      // Check that message is displayed
+      const gameMessage = document.getElementById("game-message")!;
+      expect(gameMessage.classList.contains("hidden")).toBe(false);
+    });
+
+    it("should not win at 2048 when in 8192 mode", async () => {
+      // Set target to 8192 mode
+      game.setCurrentTargetLevel(8192);
+
+      // Create a board with a 2048 tile
+      game.createTestBoard([
+        [2048, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+      ]);
+
+      await game.checkAchievements();
+
+      // Should NOT win at 2048 when target is 8192
+      expect(game.getGameWon()).toBe(false);
+    });
+
+    it("should not win at 4096 when in 8192 mode", async () => {
+      // Set target to 8192 mode
+      game.setCurrentTargetLevel(8192);
+
+      // Create a board with a 4096 tile
+      game.createTestBoard([
+        [4096, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+      ]);
+
+      await game.checkAchievements();
+
+      // Should NOT win at 4096 when target is 8192
+      expect(game.getGameWon()).toBe(false);
+    });
+
+    it("should win at 8192 when in 8192 mode", async () => {
+      // Set target to 8192 mode
+      game.setCurrentTargetLevel(8192);
+
+      // Create a board with a 8192 tile
+      game.createTestBoard([
+        [8192, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+      ]);
+
+      await game.checkAchievements();
+
+      // Should win at 8192 when target is 8192
+      expect(game.getGameWon()).toBe(true);
     });
   });
 

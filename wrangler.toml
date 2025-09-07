@@ -15,7 +15,7 @@ ENVIRONMENT = "production"
 
 # Preview environment for PR deployments
 [env.preview]
-name = "2048-game-preview"
+# name will be set dynamically by CI/CD pipeline
 
 [env.preview.vars]
 NODE_VERSION = "24"
