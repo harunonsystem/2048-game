@@ -470,20 +470,16 @@ class Game2048 {
   }
 
   private async checkAchievements(): Promise<void> {
-    console.log(`[DEBUG] checkAchievements called, currentTargetLevel: ${this.currentTargetLevel}`);
-    
     for (let row = 0; row < 4; row++) {
       for (let col = 0; col < 4; col++) {
         const tile = this.board[row][col];
         if (tile) {
           for (const level of this.achievementLevels) {
             if (tile.value >= level && !this.completedLevels.has(level)) {
-              console.log(`[DEBUG] Achievement reached: ${level}, target: ${this.currentTargetLevel}, tile: ${tile.value}`);
               this.completedLevels.add(level);
 
               // Only show achievement and win if we hit the current target level
               if (level === this.currentTargetLevel) {
-                console.log(`[DEBUG] TARGET HIT! Winning with level: ${level}`);
                 this.gameWon = true;
                 // Update target to next level if available
                 const currentIndex = this.achievementLevels.indexOf(level);
@@ -492,8 +488,6 @@ class Game2048 {
                 }
                 await this.showAchievement(level);
                 return;
-              } else {
-                console.log(`[DEBUG] Achievement ${level} reached but not target (${this.currentTargetLevel}) - no message shown`);
               }
             }
           }
@@ -732,9 +726,7 @@ class Game2048 {
 
   private loadGameMode(): number {
     const saved = localStorage.getItem("gameMode");
-    const result = saved ? parseInt(saved) : 2048; // Default to 2048 mode
-    console.log(`[DEBUG] loadGameMode: saved=${saved}, result=${result}`);
-    return result;
+    return saved ? parseInt(saved) : 2048; // Default to 2048 mode
   }
 
   private saveGameMode(): void {
@@ -743,11 +735,9 @@ class Game2048 {
 
   private changeGameMode(button: HTMLButtonElement): void {
     const targetValue = parseInt(button.dataset.target!);
-    console.log(`[DEBUG] Changing game mode to: ${targetValue}`);
     
     if (this.achievementLevels.includes(targetValue as GameMode)) {
       this.currentTargetLevel = targetValue;
-      console.log(`[DEBUG] Game mode changed successfully, currentTargetLevel: ${this.currentTargetLevel}`);
       this.saveGameMode();
       this.updateModeButtons();
       this.restart();
