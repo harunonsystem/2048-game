@@ -82,6 +82,8 @@ class Game2048 {
     this.completedLevels = new Set();
 
     this.initializeDOM();
+    // Setup keyboard events immediately for better UX
+    this.setupKeyboardEvents();
     this.init();
   }
 
@@ -100,6 +102,10 @@ class Game2048 {
     this.continueButton = document.getElementById("continue-btn")!;
     this.shareXButton = document.getElementById("share-x-btn")!;
     this.copyResultButton = document.getElementById("copy-result-btn")!;
+  }
+
+  private setupKeyboardEvents(): void {
+    document.addEventListener("keydown", (e) => this.handleKeyPress(e));
   }
 
   private async init(): Promise<void> {
@@ -162,7 +168,7 @@ class Game2048 {
 
   // Game logic
   private setupEventListeners(): void {
-    document.addEventListener("keydown", (e) => this.handleKeyPress(e));
+    // Keyboard events are already set up in constructor
     document
       .getElementById("restart-btn")!
       .addEventListener("click", () => this.restart());
