@@ -598,7 +598,6 @@ class Game2048 {
   private updateMessageButtons(isWin: boolean): void {
     if (!this.translations) return;
 
-    console.log("updateMessageButtons:", { isWin, gameOver: this.gameOver });
     const tryAgainBtn = document.getElementById("try-again-btn")!;
 
     if (isWin && !this.gameOver) {
@@ -610,7 +609,6 @@ class Game2048 {
       tryAgainBtn.textContent = newGameText;
     } else {
       // Game over or lose - hide continue button
-      console.log("Hiding continue button");
       this.continueButton.classList.add("hidden");
       tryAgainBtn.style.order = "1";
 
@@ -665,7 +663,6 @@ class Game2048 {
       await navigator.clipboard.writeText(text);
       this.showCopyFeedback();
     } catch (err) {
-      console.log("Copy failed:", err);
       this.fallbackCopyText(text);
     }
   }
@@ -690,7 +687,7 @@ class Game2048 {
     try {
       document.execCommand("copy");
     } catch (err) {
-      console.log("Fallback copy failed:", err);
+      // Silently fail - copy functionality is not critical
     }
     document.body.removeChild(textArea);
   }
