@@ -4,62 +4,71 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a modern 2048 puzzle game built with **Vite + npm** and deployed to **Cloudflare Workers**. Players slide numbered tiles on a 4×4 grid to combine them and reach the target tile (2048, 4096, etc). Features responsive design, touch controls, smooth animations, internationalization, and local storage persistence.
+This is a modern 2048 puzzle game built with **TypeScript, Vite + npm** and deployed to **Cloudflare Workers**. Players slide numbered tiles on a 4×4 grid to combine them and reach the target tile (2048, 4096, etc). Features responsive design, touch controls, smooth animations, internationalization, and local storage persistence.
 
-## Running the Application
+## Essential Commands
 
 ### Development
 ```bash
-npm run dev       # Start Vite dev server at http://localhost:5173
-npm run build     # Build for production 
-npm run preview   # Preview production build
+npm run dev         # Start Vite dev server at http://localhost:5173
+npm run build       # Build for production 
+npm run preview     # Preview production build
+npm run typecheck   # Run TypeScript type checking
+```
+
+### Testing
+```bash
+npm run test        # Run tests in watch mode
+npm run test:run    # Run tests once
+npm run test:ui     # Run tests with Vitest UI interface
 ```
 
 ### Deployment
 ```bash
-npm run deploy:preview     # Deploy to preview environment
-npm run deploy:production  # Deploy to production environment
+wrangler deploy     # Deploy to Cloudflare Workers
 ```
 
-## Modern Architecture
+## TypeScript Architecture
 
-The project uses a **modular Vite-based architecture** with the following structure:
+The project uses **TypeScript with Vite** for modern development with strict type checking enabled. Key architectural components:
 
 ```
 ├── index.html              # Entry point with game UI
-├── src/
-│   ├── main.js            # Main game logic (refactored Game2048 class)
+├── src/                    # TypeScript source files
+│   ├── main.ts            # Main game logic and initialization
+│   ├── game.ts            # Game2048 class with core game mechanics
+│   ├── translations.ts    # Translation manager and i18n logic
+│   ├── types.ts           # TypeScript type definitions
 │   ├── style.css          # Modern CSS with animations & responsive design
 │   ├── translations.json  # Internationalization data (ja/en)
-│   └── worker.js          # Cloudflare Workers handler
-├── package.json           # npm dependencies & scripts
+│   └── worker.ts          # Cloudflare Workers handler
+├── tests/                  # Vitest test files
+├── tsconfig.json          # TypeScript configuration
 ├── vite.config.js         # Vite build configuration  
-├── wrangler.toml          # Cloudflare Workers configuration
-└── .github/workflows/     # CI/CD automation
+└── wrangler.toml          # Cloudflare Workers configuration
 ```
 
 ### Core Architecture Components
 
-**Game Engine (`src/main.js`):**
-- `TranslationManager` - Async JSON translation loader
-- `Game2048` - Main game class with modular method organization
-- Async initialization with proper translation loading
-- Clean separation of concerns (DOM, game logic, persistence)
+**TypeScript Configuration:**
+- Strict type checking with `exactOptionalPropertyTypes`
+- ES2020 target with modern DOM types
+- Bundler module resolution for optimal tree-shaking
 
-**Styling (`src/style.css`):**
-- CSS Grid-based game board with smooth animations
-- Modern gradients and visual effects for tiles
-- Responsive design with mobile touch support
-- Achievement-specific tile animations (golden glow, etc.)
+**Game Engine (`src/main.ts` + `src/game.ts`):**
+- `TranslationManager` - Type-safe async JSON translation loader
+- `Game2048` - Main game class with full TypeScript interfaces
+- Clean separation of concerns with proper typing
+- Event handling with strict type safety
 
-**Internationalization (`src/translations.json`):**
-- JSON-based translation system supporting Japanese/English
-- Async loading with fallback support
-- Extensible structure for additional languages
+**Testing Infrastructure (`tests/`):**
+- Vitest for unit and integration testing
+- JSDOM environment for DOM testing
+- UI test runner available for interactive debugging
 
-**Deployment (`src/worker.js`):**
-- Cloudflare Workers integration with KV asset handler
-- Static asset serving with SPA routing support
+**Deployment (`src/worker.ts`):**
+- TypeScript-first Cloudflare Workers integration
+- Static asset serving with proper type definitions
 
 ## Key Technical Improvements
 
@@ -115,21 +124,21 @@ The project uses a **modular Vite-based architecture** with the following struct
 - **Environment Variables**: Separate dev/staging/production configs
 - **Source Maps**: Debugging support in development
 
-### Testing & Debugging
+### Testing & Quality Assurance
 ```bash
-npm run dev      # Test with live reloading
-npm run build    # Verify production build
-npm run preview  # Test production build locally
+npm run test         # Run Vitest in watch mode during development
+npm run test:run     # Run all tests once (for CI/production verification)
+npm run test:ui      # Open Vitest UI for interactive test debugging
+npm run typecheck    # Run TypeScript compiler for type checking
+npm run build        # Verify production build compiles without errors
+npm run preview      # Test production build locally
 ```
 
-**Manual Testing Checklist:**
-1. All movement directions (arrows/WASD/touch)
-2. Tile merging logic and animations  
-3. Achievement unlocks and celebrations
-4. Language switching functionality
-5. Game mode changes and persistence
-6. Mobile responsiveness and touch controls
-7. Social sharing features
+**TypeScript Development:**
+- Always run `npm run typecheck` before committing changes
+- Use strict typing - avoid `any` types
+- Define interfaces in `src/types.ts` for complex objects
+- Leverage IDE TypeScript integration for real-time error checking
 
 ### Deployment Pipeline
 - **Preview Environment**: Automatic deployment from `develop` branch
