@@ -106,6 +106,19 @@ class Game2048 {
 
   private setupKeyboardEvents(): void {
     document.addEventListener("keydown", (e) => this.handleKeyPress(e));
+    
+    // Fix focus issue when returning to tab
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        // Tab became visible again - ensure focus for keyboard events
+        document.body.focus();
+      }
+    });
+    
+    // Also handle window focus events
+    window.addEventListener("focus", () => {
+      document.body.focus();
+    });
   }
 
   private async init(): Promise<void> {
