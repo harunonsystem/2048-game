@@ -37,22 +37,11 @@ jobs:
             echo "Worker does not exist or error occurred"
           fi
 
-      - name: Delete Cloudflare Worker using Wrangler
+      - name: Delete Cloudflare Worker
         if: steps.check-worker.outputs.worker_exists == 'true'
         run: |
           echo "Deleting worker: ${{ steps.worker-name.outputs.worker_name }}"
-
-          # Create temporary wrangler.toml for deletion
-          cat > temp-wrangler.toml << EOF
-          name = "${{ steps.worker-name.outputs.worker_name }}"
-          compatibility_date = "2024-12-28"
-          EOF
-
-          # Use wrangler to delete the worker
-          npx wrangler delete --config temp-wrangler.toml --force
-
-          # Clean up
-          rm temp-wrangler.toml
+          npx wrangler delete ${{ steps.worker-name.outputs.worker_name }} --force
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
