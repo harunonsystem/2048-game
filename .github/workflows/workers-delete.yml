@@ -7,6 +7,7 @@ on:
 jobs:
   delete-worker:
     runs-on: ubuntu-latest
+    environment: preview
     if: github.event.pull_request.head.ref != 'main'
     steps:
       - name: Set Worker Name
