@@ -7,6 +7,7 @@ on:
 jobs:
   delete-worker:
     runs-on: ubuntu-latest
+    environment: preview
     if: github.event.pull_request.head.ref != 'main'
     steps:
       - name: Set Worker Name
@@ -41,22 +42,21 @@ jobs:
         if: steps.check-worker.outputs.worker_exists == 'true'
         run: |
           echo "Deleting worker: ${{ steps.worker-name.outputs.worker_name }}"
-
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X DELETE \
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X DELETE \
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
             "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/${{ steps.worker-name.outputs.worker_name }}")
 
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | head -n -1)
 
-          echo "HTTP Code: $HTTP_CODE"
-          echo "Response: $BODY"
+          echo "Delete HTTP Code: $HTTP_CODE"
+          echo "Delete Response: $BODY"
 
           if [ "$HTTP_CODE" = "200" ]; then
             echo "✅ Worker deleted successfully"
           else
             echo "❌ Failed to delete worker"
-            echo "Response: $BODY"
             exit 1
           fi
 
