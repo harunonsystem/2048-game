@@ -42,10 +42,23 @@ jobs:
         if: steps.check-worker.outputs.worker_exists == 'true'
         run: |
           echo "Deleting worker: ${{ steps.worker-name.outputs.worker_name }}"
-          npx wrangler delete ${{ steps.worker-name.outputs.worker_name }} --force
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X DELETE \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/${{ steps.worker-name.outputs.worker_name }}")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "Delete HTTP Code: $HTTP_CODE"
+          echo "Delete Response: $BODY"
+
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Worker deleted successfully"
+          else
+            echo "❌ Failed to delete worker"
+            exit 1
+          fi
 
       - name: Worker deletion summary
         run: |
