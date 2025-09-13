@@ -67,11 +67,21 @@ export class Game2048Page {
     await this.waitForGameLoad();
   }
 
+  private async hideDebugPanel() {
+    await this.page.evaluate(() => {
+      const debugPanel = document.getElementById('debug-panel');
+      if (debugPanel) {
+        debugPanel.style.display = 'none';
+      }
+    });
+  }
+
   async waitForGameLoad() {
     await this.tiles.first().waitFor({ timeout: 5000 });
   }
 
   async restart() {
+    await this.hideDebugPanel();
     await this.restartBtn.click();
     await this.waitForGameLoad();
   }
@@ -133,12 +143,14 @@ export class Game2048Page {
   }
 
   async selectMode(mode: string) {
+    await this.hideDebugPanel();
     await this.page.locator(`[data-target="${mode}"]`).click();
     await this.page.waitForTimeout(500);
   }
 
   async toggleLanguage() {
-    await this.langToggle.click();
+    await this.hideDebugPanel();
+    await this.langToggle.click({ force: true });
     await this.page.waitForTimeout(500);
   }
 
