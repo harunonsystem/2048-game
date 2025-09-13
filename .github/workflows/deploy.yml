@@ -17,6 +17,8 @@ jobs:
 
       - name: Test and Build
         uses: ./.github/actions/test-and-build
+        with:
+          run-e2e: "true"
 
   deploy-production:
     runs-on: ubuntu-latest
