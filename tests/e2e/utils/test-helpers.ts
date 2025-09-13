@@ -63,7 +63,19 @@ export const GAME_MODES = [
   '2048', '4096', '8192', '16384', '32768', '65536', '131072', '262144', '524288'
 ] as const;
 
-export const TRANSLATIONS: Record<string, Record<string, string>> = {
+interface TranslationKeys {
+  score: string;
+  best: string;
+  newGame: string;
+  howToPlay: string;
+}
+
+interface Translations {
+  ja: TranslationKeys;
+  en: TranslationKeys;
+}
+
+export const TRANSLATIONS: Translations = {
   ja: {
     score: 'スコア',
     best: 'ベスト', 

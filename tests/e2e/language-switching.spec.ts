@@ -22,13 +22,19 @@ test.describe('2048 Game - Language Switching', () => {
   });
 
   test('should translate all UI elements correctly', async ({ gamePage }) => {
-    for (const [key, value] of Object.entries(TRANSLATIONS.ja)) {
+    // Test Japanese translations
+    const testKeys = ['score', 'best', 'newGame', 'howToPlay'] as const;
+    
+    for (const key of testKeys) {
+      const value = TRANSLATIONS.ja[key];
       await expect(gamePage.page.locator(`[data-i18n="${key}"]`)).toHaveText(value);
     }
 
     await gamePage.toggleLanguage();
 
-    for (const [key, value] of Object.entries(TRANSLATIONS.en)) {
+    // Test English translations
+    for (const key of testKeys) {
+      const value = TRANSLATIONS.en[key];
       await expect(gamePage.page.locator(`[data-i18n="${key}"]`)).toHaveText(value);
     }
   });
