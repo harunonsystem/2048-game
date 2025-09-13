@@ -8,6 +8,8 @@ npm run preview      # Preview production build
 npm run test         # Run all tests with vitest
 npm run test:ui      # Run tests with UI interface
 npm run test:run     # Run tests once without watch mode
+npm run test:e2e     # Run end-to-end tests with Playwright
+npm run test:e2e:ui  # Run e2e tests with UI
 npm run typecheck    # Check TypeScript types
 npm run test -- tests/game.test.ts  # Run single test file
 ```

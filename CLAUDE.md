@@ -18,9 +18,13 @@ npm run typecheck   # Run TypeScript type checking
 
 ### Testing
 ```bash
-npm run test        # Run tests in watch mode
-npm run test:run    # Run tests once
-npm run test:ui     # Run tests with Vitest UI interface
+npm run test        # Run unit tests in watch mode
+npm run test:run    # Run unit tests once
+npm run test:ui     # Run unit tests with Vitest UI interface
+npm run test:e2e    # Run E2E tests with Playwright
+npm run test:e2e:ui # Run E2E tests with Playwright UI
+npm run test:e2e:headed # Run E2E tests with browser visible
+npm run test:e2e:debug  # Run E2E tests in debug mode
 ```
 
 ### Deployment
@@ -63,8 +67,9 @@ The project uses **TypeScript with Vite** for modern development with strict typ
 
 **Testing Infrastructure (`tests/`):**
 - Vitest for unit and integration testing
+- Playwright for comprehensive E2E testing
 - JSDOM environment for DOM testing
-- UI test runner available for interactive debugging
+- UI test runners available for interactive debugging
 
 **Deployment (`src/worker.ts`):**
 - TypeScript-first Cloudflare Workers integration
@@ -127,8 +132,10 @@ The project uses **TypeScript with Vite** for modern development with strict typ
 ### Testing & Quality Assurance
 ```bash
 npm run test         # Run Vitest in watch mode during development
-npm run test:run     # Run all tests once (for CI/production verification)
+npm run test:run     # Run all unit tests once (for CI/production verification)
 npm run test:ui      # Open Vitest UI for interactive test debugging
+npm run test:e2e     # Run comprehensive E2E tests with Playwright
+npm run test:e2e:ui  # Open Playwright UI for E2E test debugging
 npm run typecheck    # Run TypeScript compiler for type checking
 npm run build        # Verify production build compiles without errors
 npm run preview      # Test production build locally
@@ -144,7 +151,8 @@ npm run preview      # Test production build locally
 - **Preview Environment**: Automatic deployment from `develop` branch
 - **Production Environment**: Manual promotion from `main` branch  
 - **Cloudflare Workers**: Global edge deployment for performance
-- **GitHub Actions**: Automated build, test, and deploy workflow
+- **GitHub Actions**: Automated build, test, E2E testing, and deploy workflow
+- **E2E Testing**: Automated cross-browser testing on every PR and push
 
 ## Common Development Tasks
 

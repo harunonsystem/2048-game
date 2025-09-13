@@ -30,3 +30,33 @@ jobs:
 
       - name: Run TypeScript check
         run: npm run typecheck
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and Dependencies
+        uses: ./.github/actions/setup-node-deps
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium firefox
+
+      - name: Test and Build
+        uses: ./.github/actions/test-and-build
+
+      - name: Run E2E tests
+        run: npm run test:e2e:chrome && npm run test:e2e:firefox
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-report-${{ github.run_id }}
+          path: playwright-report/
+          retention-days: 7
+
+
