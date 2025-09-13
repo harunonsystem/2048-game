@@ -5,7 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  workers: process.env.CI ? 4 : undefined,
   reporter: process.env.CI ? [['html'], ['github']] : 'html',
   use: {
     baseURL: 'http://localhost:5173',
@@ -13,7 +13,18 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
-  projects: [
+  projects: process.env.CI ? [
+    // CI環境: 高速化のためChromiumとMobile Chromeのみ
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
+    },
+  ] : [
+    // ローカル環境: 全ブラウザテスト
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
@@ -36,9 +47,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: process.env.CI ? 'npm run preview' : 'npm run dev',
+    command: process.env.CI ? 'npx serve dist -l 5173' : 'npm run dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: process.env.CI ? 15 * 1000 : 120 * 1000,
   },
 });

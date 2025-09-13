@@ -28,17 +28,17 @@ runs:
       shell: bash
       run: npm run test:run
 
-    - name: Install Playwright Browsers
-      if: inputs.run-e2e == 'true'
-      shell: bash
-      run: npx playwright install --with-deps chromium firefox
-
-    - name: Run E2E tests
-      if: inputs.run-e2e == 'true'
-      shell: bash
-      run: npm run test:e2e:chrome && npm run test:e2e:firefox
-
     - name: Build project
       id: build
       shell: bash
       run: npm run build
+
+    - name: Install Playwright Browsers
+      if: inputs.run-e2e == 'true'
+      shell: bash
+      run: npx playwright install --with-deps chromium
+
+    - name: Run E2E tests
+      if: inputs.run-e2e == 'true'
+      shell: bash
+      run: npm run test:e2e:chrome
