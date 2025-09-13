@@ -18,6 +18,29 @@ This directory contains comprehensive end-to-end tests using Playwright for the 
 ### Mobile & Touch Tests
 - **mobile-touch.spec.ts**: Tests mobile viewport and touch gesture handling
 
+## Refactored Test Architecture
+
+### Page Object Model
+- **page-objects/Game2048Page.ts**: Main page object encapsulating game interactions
+  - Centralized element selectors and game actions
+  - Reusable methods for common operations (move, swipe, restart, etc.)
+  - Built-in validation helpers for game state
+  - Type-safe interaction methods
+
+### Test Utilities
+- **utils/test-helpers.ts**: Shared utilities and constants
+  - Browser focus/blur simulation
+  - Mobile viewport configuration
+  - Random gameplay helpers
+  - Translation constants and game mode definitions
+
+### Refactored Test Files
+- **\*-refactored.spec.ts**: Demonstrate improved test structure
+  - Cleaner, more readable tests
+  - Better abstraction and reusability
+  - Consistent patterns across test files
+  - Reduced code duplication
+
 ## Running Tests
 
 ```bash
@@ -39,11 +62,20 @@ npm run test:e2e tests/e2e/game-basic.spec.ts
 
 ## Test Structure
 
+### Original Tests
 Each test file follows this pattern:
 1. **Setup**: Navigate to the game and wait for initial load
 2. **Test Scenarios**: Specific functionality testing
 3. **Assertions**: Verify expected behavior
 4. **Cleanup**: Automatic cleanup between tests
+
+### Refactored Architecture Benefits
+1. **Page Object Pattern**: Centralized element management and game actions
+2. **Reusable Methods**: Common operations abstracted into typed methods
+3. **Validation Helpers**: Built-in game state validation
+4. **Test Utilities**: Shared helpers for complex scenarios
+5. **Type Safety**: Full TypeScript support with proper typing
+6. **Maintainability**: Easier to update when UI changes
 
 ## Browser Coverage
 
