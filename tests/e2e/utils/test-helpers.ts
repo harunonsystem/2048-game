@@ -63,7 +63,7 @@ export const GAME_MODES = [
   '2048', '4096', '8192', '16384', '32768', '65536', '131072', '262144', '524288'
 ] as const;
 
-export const TRANSLATIONS = {
+export const TRANSLATIONS: Record<string, Record<string, string>> = {
   ja: {
     score: 'スコア',
     best: 'ベスト', 
@@ -76,4 +76,4 @@ export const TRANSLATIONS = {
     newGame: 'New Game', 
     howToPlay: 'How to Play:'
   }
-} as const;
+};
