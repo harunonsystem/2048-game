@@ -63,29 +63,6 @@ export const GAME_MODES = [
   '2048', '4096', '8192', '16384', '32768', '65536', '131072', '262144', '524288'
 ] as const;
 
-interface TranslationKeys {
-  score: string;
-  best: string;
-  newGame: string;
-  howToPlay: string;
-}
-
-interface Translations {
-  ja: TranslationKeys;
-  en: TranslationKeys;
-}
-
-export const TRANSLATIONS: Translations = {
-  ja: {
-    score: 'スコア',
-    best: 'ベスト', 
-    newGame: '新しいゲーム',
-    howToPlay: '遊び方：'
-  },
-  en: {
-    score: 'Score',
-    best: 'Best',
-    newGame: 'New Game', 
-    howToPlay: 'How to Play:'
-  }
-};
+// Import actual translations from the app
+import translationsData from '../../../src/translations.json' with { type: 'json' };
+export const TRANSLATIONS = translationsData;

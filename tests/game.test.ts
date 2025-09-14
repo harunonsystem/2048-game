@@ -30,31 +30,9 @@ class MockTranslationManager {
     };
   }
 
+
   getTranslation(language: string, key: string) {
-    const translations = {
-      ja: {
-        congratulations: "おめでとう！",
-        achievement2048: "2048タイルを達成しました！",
-        gameOver: "ゲームオーバー",
-        noMovesLeft: "移動できません",
-        wellDone: "よくできました！",
-        newRecord: "新記録！",
-        keepGoing: "続けましょう！",
-        tryAgain: "もう一度",
-        newGame: "新しいゲーム",
-      },
-      en: {
-        congratulations: "Congratulations!",
-        achievement2048: "You reached the 2048 tile!",
-        gameOver: "Game Over",
-        noMovesLeft: "No moves available",
-        wellDone: "Well done!",
-        newRecord: "New Record!",
-        keepGoing: "Keep going!",
-        tryAgain: "Try Again",
-        newGame: "New Game",
-      },
-    };
+    const translation from = this.loadTranslations();
     return translations[language]?.[key] || key;
   }
 }

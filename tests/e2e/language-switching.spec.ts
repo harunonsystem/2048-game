@@ -22,7 +22,7 @@ test.describe('2048 Game - Language Switching', () => {
   });
 
   test('should translate all UI elements correctly', async ({ gamePage }) => {
-    // Test Japanese translations
+    // Test Japanese translations - using actual keys from the app
     const testKeys = ['score', 'best', 'newGame', 'howToPlay'] as const;
     
     for (const key of testKeys) {
