@@ -6,6 +6,10 @@ inputs:
     description: "Skip running tests (useful for deploy-only jobs)"
     required: false
     default: "false"
+  run-e2e:
+    description: "Run E2E tests with Playwright"
+    required: false
+    default: "false"
 
 outputs:
   build-success:
@@ -28,3 +32,13 @@ runs:
       id: build
       shell: bash
       run: npm run build
+
+    - name: Install Playwright Browsers
+      if: inputs.run-e2e == 'true'
+      shell: bash
+      run: npx playwright install --with-deps chromium
+
+    - name: Run E2E tests
+      if: inputs.run-e2e == 'true'
+      shell: bash
+      run: npm run test:e2e:chrome
