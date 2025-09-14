@@ -1,47 +1,30 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import translationsData from "../src/translations.json";
+import type { Language, Translations, Translation } from "../src/types";
+
 
 // We need to import the classes directly since they're not exported
 // Let's create a test-specific version that exposes the classes
 class MockTranslationManager {
-  async loadTranslations() {
-    return {
-      ja: {
-        congratulations: "おめでとう！",
-        achievement2048: "2048タイルを達成しました！",
-        gameOver: "ゲームオーバー",
-        noMovesLeft: "移動できません",
-        wellDone: "よくできました！",
-        newRecord: "新記録！",
-        keepGoing: "続けましょう！",
-        tryAgain: "もう一度",
-        newGame: "新しいゲーム",
-      },
-      en: {
-        congratulations: "Congratulations!",
-        achievement2048: "You reached the 2048 tile!",
-        gameOver: "Game Over",
-        noMovesLeft: "No moves available",
-        wellDone: "Well done!",
-        newRecord: "New Record!",
-        keepGoing: "Keep going!",
-        tryAgain: "Try Again",
-        newGame: "New Game",
-      },
-    };
+  async loadTranslations(): Promise<Translations> {
+    if (this.translations) return this.translations;
+
+    this.translations = translationsData as Translations;
+    return this.translations;
   }
+  private translations: Translations | null = null;
 
-
-  getTranslation(language: string, key: string) {
-    const translation from = this.loadTranslations();
-    return translations[language]?.[key] || key;
+  getTranslation(lang: Language, key: keyof Translation): string {
+    const translations = this.translations;
+    return translations?.[lang]?.[key] || key;
   }
 }
 
 // Test helper to create a testable version of Game2048
 class TestableGame2048 {
   private translationManager: MockTranslationManager;
-  private translations: any = null;
-  private currentLanguage: string = "ja";
+  private translations: Translations | null = null;
+  private currentLanguage: Language = "ja";
   private board: (any | null)[][] = [];
   private score: number = 0;
   private bestScore: number = 0;
@@ -122,7 +105,7 @@ class TestableGame2048 {
 
     const elements = document.querySelectorAll<HTMLElement>("[data-i18n]");
     elements.forEach((element) => {
-      const key = element.getAttribute("data-i18n");
+      const key = element.getAttribute("data-i18n") as keyof Translation;
       if (key) {
         const translation = this.translationManager.getTranslation(
           this.currentLanguage,
@@ -260,7 +243,7 @@ class TestableGame2048 {
   }
 
   // Getters for testing
-  public getCurrentLanguage(): string {
+  public getCurrentLanguage(): Language {
     return this.currentLanguage;
   }
   public getScore(): number {

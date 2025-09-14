@@ -22,7 +22,8 @@ class TranslationManager {
   }
 
   getTranslation(lang: Language, key: keyof Translation): string {
-    return this.translations?.[lang]?.[key] || key;
+    const translations = this.translations;
+    return translations?.[lang]?.[key] || key;
   }
 }
 
