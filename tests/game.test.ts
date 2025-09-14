@@ -180,7 +180,8 @@ class TestableGame2048 {
 
     const t = this.translations[this.currentLanguage];
     const congratsMsg = t.congratulations;
-    const achievementMsg = t.achievement2048;
+    const achievementKey = `achievement${level}` as keyof Translation;
+    const achievementMsg = t[achievementKey];
 
     this.showMessage(
       `${congratsMsg}\n${achievementMsg}`,
@@ -394,8 +395,8 @@ describe("Game2048", () => {
       expect(gameMessage.classList.contains("hidden")).toBe(false);
 
       const messageText = document.getElementById("message-text")!;
-      expect(messageText.textContent).toContain("おめでとう");
-      expect(messageText.textContent).toContain("2048タイルを達成しました");
+      expect(messageText.textContent).toContain("おめでとうございます");
+      expect(messageText.textContent).toContain("2048達成！");
     });
 
     it("should show English result when language is English", async () => {
@@ -416,7 +417,7 @@ describe("Game2048", () => {
 
       const messageText = document.getElementById("message-text")!;
       expect(messageText.textContent).toContain("Congratulations");
-      expect(messageText.textContent).toContain("You reached the 2048 tile");
+      expect(messageText.textContent).toContain("You reached 2048!");
     });
 
     it("should not trigger 2048 achievement for lower tiles", async () => {
@@ -577,3 +578,4 @@ describe("Game2048", () => {
     });
   });
 });
+
