@@ -30,9 +30,8 @@ echo ""
 WORKERS_TO_DELETE=(
     # example
     # "mini-games-app-pr-1"
-    '2048-game-pr-5'
-    '2048-game-pr-6'
-    '2048-game-pr-7'
+    '2048-game-pr-15'
+    '2048-game-pr-16'
 )
 
 # 各Workerの削除

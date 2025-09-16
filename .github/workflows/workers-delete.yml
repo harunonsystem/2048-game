@@ -17,12 +17,18 @@ jobs:
           echo "worker_name=$WORKER_NAME" >> $GITHUB_OUTPUT
           echo "Worker name: $WORKER_NAME"
 
+      - name: Load development secrets
+        id: load-secrets
+        uses: ./.github/actions/load-1password-secrets
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+
       - name: Check if Worker exists
         id: check-worker
         run: |
           RESPONSE=$(curl -s -w "\n%{http_code}" \
-            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/${{ steps.worker-name.outputs.worker_name }}")
+            -H "Authorization: Bearer ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}" \
+            "https://api.cloudflare.com/client/v4/accounts/${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/${{ steps.worker-name.outputs.worker_name }}")
 
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | head -n -1)
@@ -44,8 +50,8 @@ jobs:
           echo "Deleting worker: ${{ steps.worker-name.outputs.worker_name }}"
           RESPONSE=$(curl -s -w "\n%{http_code}" \
             -X DELETE \
-            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/${{ steps.worker-name.outputs.worker_name }}")
+            -H "Authorization: Bearer ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}" \
+            "https://api.cloudflare.com/client/v4/accounts/${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/${{ steps.worker-name.outputs.worker_name }}")
 
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | head -n -1)
