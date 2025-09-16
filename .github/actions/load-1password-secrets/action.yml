@@ -20,9 +20,9 @@ runs:
       env:
         OP_SERVICE_ACCOUNT_TOKEN: ${{ env.OP_SERVICE_ACCOUNT_TOKEN }}
         OP_ENVIRONMENT: ${{ inputs.environment }}
-      shell: bash
 
     - name: Verify secrets loaded
+      shell: bash
       run: |
         echo "Cloudflare Token: ${CLOUDFLARE_API_TOKEN:0:10}***"
         echo "Cloudflare Account: ${CLOUDFLARE_ACCOUNT_ID:0:10}***"
@@ -40,4 +40,3 @@ runs:
           echo "❌ CLOUDFLARE_ACCOUNT_ID not found"
           exit 1
         fi
-      shell: bash
