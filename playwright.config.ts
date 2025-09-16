@@ -4,11 +4,11 @@ export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 4 : undefined,
+  retries: process.env.CI ? 1 : 0,
+  workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? [['html'], ['github']] : 'html',
   use: {
-    baseURL: 'http://localhost:5173',
+   baseURL: process.env.CI ? 'http://localhost:4173' : 'http://localhost:5173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -47,9 +47,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: process.env.CI ? 'npx serve dist -l 5173' : 'npm run dev',
-    url: 'http://localhost:5173',
+    command: process.env.CI ? 'npm run preview' : 'npm run dev',
+    url: process.env.CI ? 'http://localhost:4173' : 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
-    timeout: process.env.CI ? 15 * 1000 : 120 * 1000,
+    timeout: process.env.CI ? 30 * 1000 : 120 * 1000,
   },
 });

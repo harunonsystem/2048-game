@@ -21,6 +21,16 @@ runs:
         node-version-file: ".node-version"
         cache: "npm"
 
+    - name: Cache build artifacts
+      uses: actions/cache@v4
+      with:
+        path: |
+          dist
+          .vite
+        key: build-${{ runner.os }}-${{ hashFiles('src/**/*', 'package-lock.json') }}
+        restore-keys: |
+          build-${{ runner.os }}-
+
     - name: Install dependencies
       shell: bash
       run: npm ci
