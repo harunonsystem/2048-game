@@ -1,0 +1,43 @@
+name: 'Load 1Password Secrets'
+description: 'Load secrets from 1Password environment with proper error handling'
+inputs:
+  environment:
+    description: '1Password environment name'
+    required: true
+    default: '2048game'
+  export-env:
+    description: 'Export secrets as environment variables'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Load 1Password secrets
+      uses: 1password/load-secrets-action@e15d65b7281ef8e75b5c2c05dd95f3aab1ec55d3 # v3
+      with:
+        export-env: ${{ inputs.export-env }}
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ env.OP_SERVICE_ACCOUNT_TOKEN }}
+        OP_ENVIRONMENT: ${{ inputs.environment }}
+      shell: bash
+
+    - name: Verify secrets loaded
+      run: |
+        echo "Cloudflare Token: ${CLOUDFLARE_API_TOKEN:0:10}***"
+        echo "Cloudflare Account: ${CLOUDFLARE_ACCOUNT_ID:0:10}***"
+
+        if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+          echo "✅ CLOUDFLARE_API_TOKEN loaded successfully"
+        else
+          echo "❌ CLOUDFLARE_API_TOKEN not found"
+          exit 1
+        fi
+
+        if [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
+          echo "✅ CLOUDFLARE_ACCOUNT_ID loaded successfully"
+        else
+          echo "❌ CLOUDFLARE_ACCOUNT_ID not found"
+          exit 1
+        fi
+      shell: bash

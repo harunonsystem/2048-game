@@ -38,12 +38,11 @@ jobs:
           cat wrangler.toml
 
       - name: Load development secrets
-        uses: 1password/load-secrets-action@v3
+        uses: ./.github/actions/load-1password-secrets
         with:
-          export-env: true
+          environment: "2048game"
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          OP_ENVIRONMENT: "2048Game-Development"
 
       - name: Deploy to Preview
         id: deploy
