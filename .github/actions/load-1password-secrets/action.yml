@@ -1,0 +1,38 @@
+name: 'Load 1Password Secrets'
+description: 'Load secrets from 1Password vault with proper error handling'
+inputs:
+  export-env:
+    description: 'Export secrets as environment variables'
+    required: false
+    default: 'true'
+outputs:
+  CLOUDFLARE_API_TOKEN:
+    description: 'Cloudflare API Token loaded from 1Password'
+    value: ${{ steps.op-load-secret.outputs.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID:
+    description: 'Cloudflare Account ID loaded from 1Password'
+    value: ${{ steps.op-load-secret.outputs.CLOUDFLARE_ACCOUNT_ID }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Load 1Password secrets
+      id: op-load-secret
+      uses: 1password/load-secrets-action@v2
+      with:
+        export-env: false
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ env.OP_SERVICE_ACCOUNT_TOKEN }}
+        CLOUDFLARE_ACCOUNT_ID: op://harunonpj/CLOUDFLARE_ACCOUNT_ID/harunonpj
+        CLOUDFLARE_API_TOKEN: op://harunonpj/CLOUDFLARE_API_TOKEN/harunonpj
+      
+    - name: Verify secrets loaded
+      shell: bash
+      run: |
+        echo "CLOUDFLARE_ACCOUNT_ID ${{ steps.op-load-secret.outputs.CLOUDFLARE_ACCOUNT_ID }}"
+
+    - name: Output secrets as environment variables
+      if: ${{ inputs.export-env == 'true' }}
+      shell: bash
+      run: |
+        echo "Exporting secrets as environment variables"
+        echo "CLOUDFLARE_ACCOUNT_ID=${{ steps.op-load-secret.outputs.CLOUDFLARE_ACCOUNT_ID }}" >> $GITHUB_ENV
