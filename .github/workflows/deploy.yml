@@ -30,9 +30,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Load production secrets
+        id: load-secrets
         uses: ./.github/actions/load-1password-secrets
-        with:
-          environment: "2048game"
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
@@ -47,6 +46,6 @@ jobs:
       - name: Deploy to Production
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy -e production
