@@ -14,7 +14,7 @@ runs:
   using: 'composite'
   steps:
     - name: Load 1Password secrets
-      uses: 1password/load-secrets-action@e15d65b7281ef8e75b5c2c05dd95f3aab1ec55d3 # v3
+      uses: 1password/load-secrets-action@v2
       with:
         export-env: ${{ inputs.export-env }}
       env:
