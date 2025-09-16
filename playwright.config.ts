@@ -4,8 +4,8 @@ export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 4 : undefined,
+   retries: process.env.CI ? 1 : 0,
+   workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? [['html'], ['github']] : 'html',
   use: {
     baseURL: 'http://localhost:5173',
@@ -46,10 +46,10 @@ export default defineConfig({
       use: { ...devices['iPhone 12'] },
     },
   ],
-  webServer: {
-    command: process.env.CI ? 'npx serve dist -l 5173' : 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-    timeout: process.env.CI ? 15 * 1000 : 120 * 1000,
-  },
+   webServer: {
+     command: process.env.CI ? 'npm run preview' : 'npm run dev',
+     url: 'http://localhost:5173',
+     reuseExistingServer: !process.env.CI,
+     timeout: process.env.CI ? 10 * 1000 : 120 * 1000,
+   },
 });
