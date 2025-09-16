@@ -7,12 +7,12 @@ export default defineConfig({
    retries: process.env.CI ? 1 : 0,
    workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? [['html'], ['github']] : 'html',
-  use: {
-    baseURL: 'http://localhost:5173',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
-  },
+   use: {
+     baseURL: process.env.CI ? 'http://localhost:4173' : 'http://localhost:5173',
+     trace: 'on-first-retry',
+     screenshot: 'only-on-failure',
+     video: 'retain-on-failure',
+   },
   projects: process.env.CI ? [
     // CI環境: 高速化のためChromiumとMobile Chromeのみ
     {
@@ -48,8 +48,9 @@ export default defineConfig({
   ],
    webServer: {
      command: process.env.CI ? 'npm run preview' : 'npm run dev',
-     url: 'http://localhost:5173',
+     url: 'http://localhost:4173',
+     port: process.env.CI ? 4173 : 5173,
      reuseExistingServer: !process.env.CI,
-     timeout: process.env.CI ? 10 * 1000 : 120 * 1000,
+     timeout: process.env.CI ? 30 * 1000 : 120 * 1000,
    },
 });
