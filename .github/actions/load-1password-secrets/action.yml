@@ -19,7 +19,8 @@ runs:
         export-env: ${{ inputs.export-env }}
       env:
         OP_SERVICE_ACCOUNT_TOKEN: ${{ env.OP_SERVICE_ACCOUNT_TOKEN }}
-        OP_ENVIRONMENT: ${{ inputs.environment }}
+        CLOUDFLARE_API_TOKEN: "op://2048game/Cloudflare/api_token"
+        CLOUDFLARE_ACCOUNT_ID: "op://2048game/Cloudflare/account_id"
 
     - name: Verify secrets loaded
       shell: bash
