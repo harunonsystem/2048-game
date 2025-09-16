@@ -7,12 +7,12 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? [['html'], ['github']] : 'html',
-   use: {
-     baseURL: process.env.CI ? 'http://localhost:4173' : 'http://localhost:5173',
-     trace: 'on-first-retry',
-     screenshot: 'only-on-failure',
-     video: 'retain-on-failure',
-   },
+  use: {
+   baseURL: process.env.CI ? 'http://localhost:4173' : 'http://localhost:5173',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
   projects: process.env.CI ? [
     // CI環境: 高速化のためChromiumとMobile Chromeのみ
     {
