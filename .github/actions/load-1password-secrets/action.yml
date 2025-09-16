@@ -22,8 +22,8 @@ runs:
         export-env: false
       env:
         OP_SERVICE_ACCOUNT_TOKEN: ${{ env.OP_SERVICE_ACCOUNT_TOKEN }}
-        CLOUDFLARE_ACCOUNT_ID: op://hfldvv2kvugawk3bqhs2doad64/CLOUDFLARE_ACCOUNT_ID/harunonpj
-        CLOUDFLARE_API_TOKEN: op://hfldvv2kvugawk3bqhs2doad64/CLOUDFLARE_API_TOKEN/harunonpj
+        CLOUDFLARE_ACCOUNT_ID: op://harunonpj/CLOUDFLARE_ACCOUNT_ID/harunonpj
+        CLOUDFLARE_API_TOKEN: op://harunonpj/CLOUDFLARE_API_TOKEN/harunonpj
       
     - name: Verify secrets loaded
       shell: bash
