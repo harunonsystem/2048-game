@@ -1,77 +1,110 @@
-# 2048ゲーム
+# 2048 Game
+![2048 Game Screenshot](screenshots/game-initial-full.png)
 
-シンプルで見やすい2048ゲームです。HTML、CSS、JavaScriptで作成されており、ブラウザで簡単に遊べます。
+A clean and intuitive 2048 game built with HTML, CSS, and TypeScript. Play directly in your browser with smooth animations and responsive design.
 
-## 🎮 ゲームの概要
+## 🎮 Game Overview
 
-2048は、4×4のグリッド上で数字タイルを移動・合成して2048のタイルを作ることを目指すパズルゲームです。
+2048 is a puzzle game where you slide numbered tiles on a 4×4 grid to combine them and create a tile with the number 2048.
 
-### ゲームルール
+### Game Rules
 
-1. 矢印キー（またはWASD）を使ってタイルを上下左右に移動させます
-2. 同じ数字のタイルが隣り合うと合成され、値が倍になります
-3. 移動するたびに新しいタイル（2または4）がランダムな場所に出現します
-4. 2048のタイルを作成すれば勝利です
-5. タイルがすべて埋まり、移動できなくなるとゲームオーバーです
+1. Use arrow keys (or WASD) to move tiles in four directions
+2. When two tiles with the same number touch, they merge into one with double the value
+3. A new tile (2 or 4) appears randomly after each move
+4. Reach the 2048 tile to win the game
+5. Game ends when no moves are possible
 
-## 🚀 実行方法
+## 🚀 Getting Started
 
-1. このフォルダをローカルにダウンロードまたはクローンします
-2. `index.html`をブラウザで開きます
-3. すぐにゲームを楽しめます！
+### Development
+```bash
+npm install          # Install dependencies
+npm run dev          # Start development server at http://localhost:5173
+npm run build        # Build for production
+npm run preview      # Preview production build
+```
 
-## 🎯 操作方法
+### Quick Play
+1. Clone or download this repository
+2. Open `index.html` in your browser
+3. Start playing immediately!
 
-### キーボード
-- **矢印キー** ：タイルの移動
-- **WASD** ：タイルの移動（W=上、A=左、S=下、D=右）
-- **R または スペースキー** ：ゲームリセット
+## 🎯 Controls
 
-### モバイル
-- **スワイプ** ：タイルの移動（上下左右にスワイプ）
-- **「新しいゲーム」ボタン** ：ゲームリセット
+### Keyboard
+- **Arrow Keys**: Move tiles
+- **WASD**: Alternative movement controls (W=up, A=left, S=down, D=right)
+- **R or Space**: Reset game
 
-## ✨ 特徴
+### Mobile & Touch
+- **Swipe**: Move tiles in any direction
+- **"New Game" Button**: Reset the game
 
-- **レスポンシブデザイン** ：PC・タブレット・スマートフォンに対応
-- **モダンなUI** ：グラデーション背景とスムーズなアニメーション
-- **ベストスコア保存** ：ローカルストレージを使用してベストスコアを記録
-- **直感的な操作** ：キーボード・タッチ操作の両方に対応
-- **ゲーム状態管理** ：勝利・敗北の判定とメッセージ表示
+## ✨ Features
 
-## 🎨 デザインの特徴
+- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Modern UI**: Beautiful gradient backgrounds with smooth animations
+- **Best Score Tracking**: Automatically saves high scores using localStorage
+- **Intuitive Controls**: Support for both keyboard and touch input
+- **Game State Management**: Win/lose detection with appropriate messaging
+- **Multi-language Support**: English and Japanese translations
+- **TypeScript**: Full type safety and modern development experience
 
-- **美しいグラデーション** ：紫とブルーのグラデーション背景
-- **タイル別カラー** ：各数値に応じた視覚的に分かりやすい色分け
-- **アニメーション効果** ：タイル出現・合成時のスムーズなアニメーション
-- **半透明効果** ：モダンなガラス効果（backdrop-filter）
+## 🎨 Design Highlights
 
-## 📱 対応環境
+- **Beautiful Gradients**: Purple and blue gradient backgrounds
+- **Color-coded Tiles**: Visually distinct colors for each number value
+- **Smooth Animations**: Seamless tile appearance and merge animations
+- **Glass Effects**: Modern backdrop-filter effects for depth
 
-- **モダンブラウザ** ：Chrome、Firefox、Safari、Edgeの最新版
-- **モバイルデバイス** ：iOS Safari、Android Chrome
-- **タブレット** ：iPad、Android タブレット
+## 📱 Browser Compatibility
 
-## 🏆 スコアシステム
+- **Modern Browsers**: Latest Chrome, Firefox, Safari, Edge
+- **Mobile Devices**: iOS Safari, Android Chrome
+- **Tablets**: iPad, Android tablets
 
-- タイル合成時に合成後の数値がスコアに加算されます
-- ベストスコアは自動的にローカルストレージに保存されます
-- ゲームを閉じても記録は保持されます
+## 🏆 Scoring System
 
-## 🔧 技術仕様
+- Points are awarded when tiles merge (equal to the resulting tile value)
+- Best score is automatically saved to localStorage
+- Scores persist between sessions
 
-- **HTML5** ：セマンティックなマークアップ
-- **CSS3** ：Grid Layout、Flexbox、アニメーション
-- **Vanilla JavaScript** ：ES6+クラス構文、モジュールパターン
-- **ローカルストレージ** ：ベストスコア永続化
+## 🔧 Technical Stack
 
-## 🎪 今後の拡張案
+- **TypeScript**: Type-safe development with modern ES6+ features
+- **Vite**: Fast build tool and development server
+- **HTML5**: Semantic markup structure
+- **CSS3**: Grid Layout, Flexbox, and CSS animations
+- **Web Workers**: Background processing for game logic
+- **Local Storage**: Persistent score and settings storage
 
-- サウンド効果の追加
-- 複数の難易度モード（3×3、5×5グリッド）
-- オンラインランキング機能
-- カスタムテーマ機能
+## 🧪 Testing
+
+```bash
+npm run test         # Run unit tests
+npm run test:ui      # Run tests with UI
+npm run test:e2e     # Run end-to-end tests
+npm run typecheck    # Type checking
+```
+
+## 🚀 Deployment
+
+The game can be deployed to any static hosting service:
+- GitHub Pages
+- Netlify
+- Vercel
+- Cloudflare Pages
+
+## 🎪 Future Enhancements
+
+- Sound effects and music
+- Multiple difficulty modes (3×3, 5×5 grids)
+- Online leaderboards
+- Custom themes and color schemes
+- Undo functionality
+- Game statistics tracking
 
 ---
 
-楽しいゲーム体験をお楽しみください！ 🎉
+Enjoy the game! 🎉
