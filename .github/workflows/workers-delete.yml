@@ -7,21 +7,22 @@ on:
 jobs:
   delete-worker:
     runs-on: ubuntu-latest
-    environment: preview
     if: github.event.pull_request.head.ref != 'main'
     steps:
-      - name: Set Worker Name
-        id: worker-name
-        run: |
-          WORKER_NAME="2048-game-pr-${{ github.event.pull_request.number }}"
-          echo "worker_name=$WORKER_NAME" >> $GITHUB_OUTPUT
-          echo "Worker name: $WORKER_NAME"
+      - uses: actions/checkout@v5
 
       - name: Load development secrets
         id: load-secrets
         uses: ./.github/actions/load-1password-secrets
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+
+      - name: Set Worker Name
+        id: worker-name
+        run: |
+          WORKER_NAME="2048-game-pr-${{ github.event.pull_request.number }}"
+          echo "worker_name=$WORKER_NAME" >> $GITHUB_OUTPUT
+          echo "Worker name: $WORKER_NAME"
 
       - name: Check if Worker exists
         id: check-worker
@@ -48,6 +49,7 @@ jobs:
         if: steps.check-worker.outputs.worker_exists == 'true'
         run: |
           echo "Deleting worker: ${{ steps.worker-name.outputs.worker_name }}"
+          
           RESPONSE=$(curl -s -w "\n%{http_code}" \
             -X DELETE \
             -H "Authorization: Bearer ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}" \
@@ -55,14 +57,13 @@ jobs:
 
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | head -n -1)
-
-          echo "Delete HTTP Code: $HTTP_CODE"
-          echo "Delete Response: $BODY"
-
+          echo "HTTP Code: $HTTP_CODE"
+          echo "Response: $BODY"
           if [ "$HTTP_CODE" = "200" ]; then
             echo "✅ Worker deleted successfully"
           else
             echo "❌ Failed to delete worker"
+            echo "Response: $BODY"
             exit 1
           fi
 
