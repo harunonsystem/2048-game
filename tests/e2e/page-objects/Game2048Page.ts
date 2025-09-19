@@ -29,6 +29,12 @@ export class Game2048Page {
   readonly highestTile: Locator;
   readonly shareXBtn: Locator;
   readonly copyResultBtn: Locator;
+  
+  // Footer elements
+  readonly footerLinks: Locator;
+  readonly contactLink: Locator;
+  readonly sponsorLink: Locator;
+  readonly coffeeLink: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -59,6 +65,12 @@ export class Game2048Page {
     this.highestTile = page.locator('#highest-tile');
     this.shareXBtn = page.locator('#share-x-btn');
     this.copyResultBtn = page.locator('#copy-result-btn');
+    
+    // Footer elements
+    this.footerLinks = page.locator('.footer-links');
+    this.contactLink = page.locator('.contact-link');
+    this.sponsorLink = page.locator('.github-sponsor-link');
+    this.coffeeLink = page.locator('.coffee-link');
   }
 
   async goto() {

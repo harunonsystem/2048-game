@@ -23,7 +23,9 @@
     "noMovesLeft": "動かせるタイルがありません",
     "newRecord": "新記録！",
     "wellDone": "よくできました！",
-    "contact": "お問い合わせ"
+    "contact": "お問い合わせ",
+    "githubSponsor": "GitHub Sponsors",
+    "buyMeCoffee": "Buy me a coffee"
   },
   "en": {
     "score": "Score",
@@ -49,6 +51,8 @@
     "noMovesLeft": "No moves available",
     "newRecord": "New Record!",
     "wellDone": "Well Done!",
-    "contact": "Contact"
+    "contact": "Contact",
+    "githubSponsor": "GitHub Sponsors",
+    "buyMeCoffee": "Buy me a coffee"
   }
 }

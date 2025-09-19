@@ -1181,27 +1181,58 @@ h1 {
         padding: 6px 8px;
         font-size: 0.7rem;
     }
+
+    /* Footer mobile responsive */
+    .footer-links {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .footer-divider {
+        display: none;
+    }
+    
+    .footer-link {
+        font-size: 13px;
+        padding: 4px 8px;
+    }
 }
 
 /* Footer styles */
 .footer {
     text-align: center;
-    padding: 20px;
+    padding: 15px 20px;
     margin-top: 20px;
     border-top: 1px solid #eee;
 }
 
-.contact-link {
-    color: #1da1f2;
-    text-decoration: underline;
-    font-size: 14px;
-    transition: all 0.3s ease;
+.footer-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-wrap: wrap;
 }
 
-.contact-link:hover {
-    color: #0d8bd9;
-    text-decoration: none;
-    background-color: rgba(29, 161, 242, 0.1);
-    padding: 2px 4px;
+.footer-link {
+    color: #666;
+    text-decoration: underline;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    padding: 2px 6px;
     border-radius: 3px;
+}
+
+.footer-link:hover {
+    color: #1da1f2;
+    text-decoration: underline;
+}
+
+
+
+.footer-divider {
+    color: #ccc;
+    font-size: 12px;
+    margin: 0 2px;
 }
