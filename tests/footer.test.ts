@@ -32,7 +32,7 @@ describe("Footer Links", () => {
              class="footer-link contact-link" data-i18n="contact">お問い合わせ</a>
           <span class="footer-divider">|</span>
           <a href="https://github.com/sponsors/harunonsystem" target="_blank" rel="noopener noreferrer"
-             class="footer-link sponsor-link" data-i18n="githubSponsor">GitHub Sponsor</a>
+             class="footer-link github-sponsor-link" data-i18n="githubSponsor">GitHub Sponsor</a>
           <span class="footer-divider">|</span>
           <a href="https://www.buymeacoffee.com/harunonsystem" target="_blank" rel="noopener noreferrer"
              class="footer-link coffee-link" data-i18n="buyMeCoffee">Buy me a coffee</a>
@@ -46,7 +46,7 @@ describe("Footer Links", () => {
       const footer = document.querySelector('.footer');
       const footerLinks = document.querySelector('.footer-links');
       const contactLink = document.querySelector('.contact-link');
-      const sponsorLink = document.querySelector('.sponsor-link');
+      const sponsorLink = document.querySelector('.github-sponsor-link');
       const coffeeLink = document.querySelector('.coffee-link');
       const dividers = document.querySelectorAll('.footer-divider');
 
@@ -60,7 +60,7 @@ describe("Footer Links", () => {
 
     it("should have correct href attributes", () => {
       const contactLink = document.querySelector('.contact-link') as HTMLAnchorElement;
-      const sponsorLink = document.querySelector('.sponsor-link') as HTMLAnchorElement;
+      const sponsorLink = document.querySelector('.github-sponsor-link') as HTMLAnchorElement;
       const coffeeLink = document.querySelector('.coffee-link') as HTMLAnchorElement;
 
       expect(contactLink.href).toBe('https://x.com/harunonsystem');
@@ -79,13 +79,13 @@ describe("Footer Links", () => {
 
     it("should have correct CSS classes", () => {
       const contactLink = document.querySelector('.contact-link');
-      const sponsorLink = document.querySelector('.sponsor-link');
+      const sponsorLink = document.querySelector('.github-sponsor-link');
       const coffeeLink = document.querySelector('.coffee-link');
 
       expect(contactLink?.classList.contains('footer-link')).toBe(true);
       expect(contactLink?.classList.contains('contact-link')).toBe(true);
       expect(sponsorLink?.classList.contains('footer-link')).toBe(true);
-      expect(sponsorLink?.classList.contains('sponsor-link')).toBe(true);
+      expect(sponsorLink?.classList.contains('github-sponsor-link')).toBe(true);
       expect(coffeeLink?.classList.contains('footer-link')).toBe(true);
       expect(coffeeLink?.classList.contains('coffee-link')).toBe(true);
     });
@@ -107,7 +107,7 @@ describe("Footer Links", () => {
       await applyTranslations('ja');
 
       const contactLink = document.querySelector('.contact-link');
-      const sponsorLink = document.querySelector('.sponsor-link');
+      const sponsorLink = document.querySelector('.github-sponsor-link');
       const coffeeLink = document.querySelector('.coffee-link');
 
       expect(contactLink?.textContent).toBe('お問い合わせ');
@@ -119,7 +119,7 @@ describe("Footer Links", () => {
       await applyTranslations('en');
 
       const contactLink = document.querySelector('.contact-link');
-      const sponsorLink = document.querySelector('.sponsor-link');
+      const sponsorLink = document.querySelector('.github-sponsor-link');
       const coffeeLink = document.querySelector('.coffee-link');
 
       expect(contactLink?.textContent).toBe('Contact');
@@ -161,7 +161,7 @@ describe("Footer Links", () => {
 
     it("should have descriptive text content", () => {
       const contactLink = document.querySelector('.contact-link');
-      const sponsorLink = document.querySelector('.sponsor-link');
+      const sponsorLink = document.querySelector('.github-sponsor-link');
       const coffeeLink = document.querySelector('.coffee-link');
 
       expect(contactLink?.textContent).toBeTruthy();
@@ -192,7 +192,7 @@ describe("Footer Links", () => {
       expect(children).toHaveLength(5);
       expect(children[0].classList.contains('contact-link')).toBe(true);
       expect(children[1].classList.contains('footer-divider')).toBe(true);
-      expect(children[2].classList.contains('sponsor-link')).toBe(true);
+      expect(children[2].classList.contains('github-sponsor-link')).toBe(true);
       expect(children[3].classList.contains('footer-divider')).toBe(true);
       expect(children[4].classList.contains('coffee-link')).toBe(true);
     });

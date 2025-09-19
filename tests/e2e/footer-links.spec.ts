@@ -44,7 +44,7 @@ test.describe('2048 Game - Footer Links', () => {
     await expect(gamePage.contactLink).toHaveClass(/footer-link/);
     await expect(gamePage.contactLink).toHaveClass(/contact-link/);
     await expect(gamePage.sponsorLink).toHaveClass(/footer-link/);
-    await expect(gamePage.sponsorLink).toHaveClass(/sponsor-link/);
+    await expect(gamePage.sponsorLink).toHaveClass(/github-sponsor-link/);
     await expect(gamePage.coffeeLink).toHaveClass(/footer-link/);
     await expect(gamePage.coffeeLink).toHaveClass(/coffee-link/);
   });

@@ -69,7 +69,7 @@ export class Game2048Page {
     // Footer elements
     this.footerLinks = page.locator('.footer-links');
     this.contactLink = page.locator('.contact-link');
-    this.sponsorLink = page.locator('.sponsor-link');
+    this.sponsorLink = page.locator('.github-sponsor-link');
     this.coffeeLink = page.locator('.coffee-link');
   }
 
