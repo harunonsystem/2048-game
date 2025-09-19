@@ -1,82 +1,111 @@
-name: Delete Worker on PR Close or Merge
+name: Delete Cloudflare Workers
 
 on:
   pull_request:
     types: [closed]
+  workflow_dispatch:
+    inputs:
+      worker_prefix:
+        description: 'Worker prefix (e.g., "2048-game-pr" or "example-")'
+        type: string
+        default: '2048-game-pr-' # Default for PR workers
+      worker_numbers:
+        description: 'Numbers to delete (e.g., "1,2,3")'
+        required: true
+        type: string
+      worker_names:
+        description: 'Full names (optional, overrides prefix+numbers)'
+        type: string
+      confirm_deletion:
+        description: 'Type "DELETE" to confirm'
+        required: true
+        type: string
 
 jobs:
-  delete-worker:
+  delete-workers:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.head.ref != 'main'
+    if: >
+      (github.event_name == 'pull_request' && github.event.pull_request.head.ref != 'main') ||
+      github.event_name == 'workflow_dispatch'
+    
     steps:
       - uses: actions/checkout@v5
 
-      - name: Load development secrets
+      - name: Validate
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.confirm_deletion }}" != "DELETE" ]; then
+            echo "❌ Must type 'DELETE' to confirm"
+            exit 1
+          fi
+
+      - name: Load secrets
         id: load-secrets
         uses: ./.github/actions/load-1password-secrets
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
-      - name: Set Worker Name
-        id: worker-name
+      - name: Delete workers
         run: |
-          WORKER_NAME="2048-game-pr-${{ github.event.pull_request.number }}"
-          echo "worker_name=$WORKER_NAME" >> $GITHUB_OUTPUT
-          echo "Worker name: $WORKER_NAME"
-
-      - name: Check if Worker exists
-        id: check-worker
-        run: |
-          RESPONSE=$(curl -s -w "\n%{http_code}" \
-            -H "Authorization: Bearer ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}" \
-            "https://api.cloudflare.com/client/v4/accounts/${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/${{ steps.worker-name.outputs.worker_name }}")
-
-          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-          BODY=$(echo "$RESPONSE" | head -n -1)
-
-          echo "HTTP Code: $HTTP_CODE"
-          echo "Response: $BODY"
-
-          if [ "$HTTP_CODE" = "200" ]; then
-            echo "worker_exists=true" >> $GITHUB_OUTPUT
-            echo "Worker exists, will proceed with deletion"
+          # Generate worker list
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            PREFIX="${{ github.event.inputs.worker_prefix }}"
+            WORKERS=("${PREFIX}${{ github.event.pull_request.number }}")
+          elif [ -n "${{ github.event.inputs.worker_names }}" ]; then
+            IFS=',' read -ra WORKERS <<< "${{ github.event.inputs.worker_names }}"
           else
-            echo "worker_exists=false" >> $GITHUB_OUTPUT
-            echo "Worker does not exist or error occurred"
+            PREFIX="${{ github.event.inputs.worker_prefix }}"
+            IFS=',' read -ra NUMS <<< "${{ github.event.inputs.worker_numbers }}"
+            WORKERS=()
+            for num in "${NUMS[@]}"; do
+              num=$(echo $num | tr -d ' ')
+              WORKERS+=("${PREFIX}${num}")
+            done
           fi
-
-      - name: Delete Cloudflare Worker
-        if: steps.check-worker.outputs.worker_exists == 'true'
-        run: |
-          echo "Deleting worker: ${{ steps.worker-name.outputs.worker_name }}"
           
-          RESPONSE=$(curl -s -w "\n%{http_code}" \
-            -X DELETE \
-            -H "Authorization: Bearer ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}" \
-            "https://api.cloudflare.com/client/v4/accounts/${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/${{ steps.worker-name.outputs.worker_name }}")
-
-          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-          BODY=$(echo "$RESPONSE" | head -n -1)
-          echo "HTTP Code: $HTTP_CODE"
-          echo "Response: $BODY"
-          if [ "$HTTP_CODE" = "200" ]; then
-            echo "✅ Worker deleted successfully"
-          else
-            echo "❌ Failed to delete worker"
-            echo "Response: $BODY"
-            exit 1
-          fi
-
-      - name: Worker deletion summary
-        run: |
-          if [ "${{ steps.check-worker.outputs.worker_exists }}" = "true" ]; then
-            echo "🗑️ Worker ${{ steps.worker-name.outputs.worker_name }} has been deleted"
-          else
-            echo "ℹ️ Worker ${{ steps.worker-name.outputs.worker_name }} did not exist"
-          fi
-
-          if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
-            echo "📝 PR was merged"
-          else
-            echo "📝 PR was closed without merging"
-          fi
+          # Delete workers
+          SUCCESS=0 NOTFOUND=0 ERROR=0
+          for worker in "${WORKERS[@]}"; do
+            worker=$(echo "$worker" | tr -d ' ')
+            [ -z "$worker" ] && continue
+            
+            echo "Processing: $worker"
+            
+            # Check exists
+            status=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "Authorization: Bearer ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}" \
+              "https://api.cloudflare.com/client/v4/accounts/${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/$worker")
+            
+            case $status in
+              200)
+                # Delete
+                del_status=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE \
+                  -H "Authorization: Bearer ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}" \
+                  "https://api.cloudflare.com/client/v4/accounts/${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/$worker")
+                
+                if [ "$del_status" = "200" ]; then
+                  echo "  ✅ Deleted"
+                  SUCCESS=$((SUCCESS + 1))
+                else
+                  echo "  ❌ Delete failed"
+                  ERROR=$((ERROR + 1))
+                fi
+                ;;
+              404)
+                echo "  ℹ️ Not found"
+                NOTFOUND=$((NOTFOUND + 1))
+                ;;
+              *)
+                echo "  ⚠️ Check failed"
+                ERROR=$((ERROR + 1))
+                ;;
+            esac
+          done
+          
+          # Summary
+           echo ""
+           echo "📊 Results: ✅$SUCCESS ℹ️$NOTFOUND ❌$ERROR"
+           
+           if [ $ERROR -gt 0 ]; then
+             echo "⚠️ Some operations failed. Check the logs above for details."
+             exit 1
+           fi
