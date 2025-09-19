@@ -48,8 +48,7 @@ jobs:
         run: |
           # Generate worker list
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            PREFIX="${{ github.event.inputs.worker_prefix }}"
-            WORKERS=("${PREFIX}${{ github.event.pull_request.number }}")
+            WORKERS=("2048-game-pr-${{ github.event.pull_request.number }}")
           elif [ -n "${{ github.event.inputs.worker_names }}" ]; then
             IFS=',' read -ra WORKERS <<< "${{ github.event.inputs.worker_names }}"
           else
