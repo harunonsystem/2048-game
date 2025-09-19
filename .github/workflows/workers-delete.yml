@@ -21,6 +21,9 @@ on:
         required: true
         type: string
 
+env:
+  DEFAULT_WORKER_PREFIX: '2048-game-pr-'
+
 jobs:
   delete-workers:
     runs-on: ubuntu-latest
@@ -46,13 +49,21 @@ jobs:
 
       - name: Delete workers
         run: |
+          # Set PREFIX based on worker_prefix availability
+          if [ -n "${{ github.event.inputs.worker_prefix }}" ]; then
+            # workflow_dispatch: worker_prefix exists
+            PREFIX="${{ github.event.inputs.worker_prefix }}"
+          else
+            # pull_request: worker_prefix doesn't exist
+            PREFIX="$DEFAULT_WORKER_PREFIX"
+          fi
+          
           # Generate worker list
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            WORKERS=("2048-game-pr-${{ github.event.pull_request.number }}")
+            WORKERS=("${PREFIX}${{ github.event.pull_request.number }}")
           elif [ -n "${{ github.event.inputs.worker_names }}" ]; then
             IFS=',' read -ra WORKERS <<< "${{ github.event.inputs.worker_names }}"
           else
-            PREFIX="${{ github.event.inputs.worker_prefix }}"
             IFS=',' read -ra NUMS <<< "${{ github.event.inputs.worker_numbers }}"
             WORKERS=()
             for num in "${NUMS[@]}"; do
