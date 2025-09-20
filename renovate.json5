@@ -1,0 +1,69 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigestsToSemver"
+  ],
+  "minimumReleaseAge": "3 days",
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 5,
+  "labels": ["dependencies"],
+  "assignees": ["harunon"],
+  "reviewers": ["harunon"],
+  "timezone": "Asia/Tokyo",
+  "schedule": ["after 10pm every weekday", "before 5am every weekday", "every weekend"],
+  "packageRules": [
+    {
+      "description": "GitHub Actions - Extended minimum release age for security",
+      "matchManagers": ["github-actions"],
+      "minimumReleaseAge": "7 days",
+      "automerge": false,
+      "labels": ["github-actions", "security"],
+      "reviewersFromCodeOwners": true
+    },
+    {
+      "description": "Major updates - Extra caution",
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "14 days",
+      "automerge": false,
+      "labels": ["major-update"],
+      "reviewersFromCodeOwners": true
+    },
+    {
+      "description": "Security updates - Faster processing",
+      "matchDepTypes": ["peerDependencies"],
+      "matchPackagePatterns": ["^@types/"],
+      "minimumReleaseAge": "1 day"
+    },
+    {
+      "description": "Node.js dependencies - Standard processing",
+      "matchManagers": ["npm"],
+      "minimumReleaseAge": "3 days",
+      "automerge": false,
+      "labels": ["npm"]
+    },
+    {
+      "description": "Dev dependencies - Faster updates",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "minimumReleaseAge": "1 day",
+      "automerge": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "minimumReleaseAge": "0 days"
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 5am on monday"]
+  },
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "🔄 Dependency Dashboard",
+  "commitMessagePrefix": "chore(deps): ",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}",
+  "branchPrefix": "renovate/",
+  "prTitle": "{{commitMessagePrefix}}{{commitMessageAction}} {{commitMessageTopic}}{{commitMessageExtra}}"
+}
