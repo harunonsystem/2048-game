@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
       - name: Setup Node.js and Dependencies
         uses: ./.github/actions/setup-node-deps
@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
       - name: Load production secrets
         id: load-secrets
@@ -44,7 +44,7 @@ jobs:
           skip-tests: "true"
 
       - name: Deploy to Production
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
         with:
           apiToken: ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}

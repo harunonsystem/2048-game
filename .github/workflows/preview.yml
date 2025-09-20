@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
 
       - name: Setup Node.js and Dependencies
         uses: ./.github/actions/setup-node-deps
@@ -45,7 +45,7 @@ jobs:
 
       - name: Deploy to Preview
         id: deploy
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
         with:
           apiToken: ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}
@@ -69,7 +69,7 @@ jobs:
           fi
 
       - name: Comment PR
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         if: github.event_name == 'pull_request' && always()
         with:
           script: |
