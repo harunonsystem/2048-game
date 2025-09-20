@@ -11,6 +11,7 @@ jobs:
     environment: preview
     permissions:
       contents: read
+      actions: read
       pull-requests: write
       issues: write
 
