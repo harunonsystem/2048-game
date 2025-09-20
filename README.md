@@ -82,10 +82,22 @@ npm run preview      # Preview production build
 ## 🧪 Testing
 
 ```bash
-npm run test         # Run unit tests
-npm run test:ui      # Run tests with UI
-npm run test:e2e     # Run end-to-end tests
-npm run typecheck    # Type checking
+# Unit Tests
+npm run test         # Run unit tests with vitest
+npm run test:ui      # Run tests with UI interface
+npm run test:run     # Run tests once without watch mode
+
+# End-to-End Tests
+npm run test:e2e     # Run all e2e tests with Playwright
+npm run test:e2e:ui  # Run e2e tests with UI
+npm run test:e2e:debug     # Debug e2e tests
+npm run test:e2e:headed    # Run e2e tests in headed mode
+npm run test:e2e:chrome    # Run e2e tests in Chrome only
+npm run test:e2e:firefox   # Run e2e tests in Firefox only
+npm run test:e2e:mobile    # Run e2e tests on mobile browsers
+
+# Type Checking
+npm run typecheck    # TypeScript type checking
 ```
 
 ## 🚀 Deployment
