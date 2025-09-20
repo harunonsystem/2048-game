@@ -24,6 +24,8 @@ on:
 env:
   DEFAULT_WORKER_PREFIX: '2048-game-pr-'
 
+permissions:
+  contents: read
 jobs:
   delete-workers:
     runs-on: ubuntu-latest
