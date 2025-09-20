@@ -28,7 +28,16 @@ runs:
     - name: Verify secrets loaded
       shell: bash
       run: |
-        echo "CLOUDFLARE_ACCOUNT_ID ${{ steps.op-load-secret.outputs.CLOUDFLARE_ACCOUNT_ID }}"
+        # Verify secrets are loaded without exposing values in logs
+        if [ -z "${{ steps.op-load-secret.outputs.CLOUDFLARE_ACCOUNT_ID }}" ]; then
+          echo "❌ CLOUDFLARE_ACCOUNT_ID not loaded"
+          exit 1
+        fi
+        if [ -z "${{ steps.op-load-secret.outputs.CLOUDFLARE_API_TOKEN }}" ]; then
+          echo "❌ CLOUDFLARE_API_TOKEN not loaded"
+          exit 1
+        fi
+        echo "✅ All secrets loaded successfully"
 
     - name: Output secrets as environment variables
       if: ${{ inputs.export-env == 'true' }}
