@@ -82,35 +82,43 @@ jobs:
             
             echo "Processing: $worker"
             
-            # Check exists
-            status=$(curl -s -o /dev/null -w "%{http_code}" \
+            # Check exists with secure curl options
+            if status=$(curl -s --fail --max-time 30 -o /dev/null -w "%{http_code}" \
               -H "Authorization: Bearer ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}" \
-              "https://api.cloudflare.com/client/v4/accounts/${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/$worker")
-            
-            case $status in
-              200)
-                # Delete
-                del_status=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE \
-                  -H "Authorization: Bearer ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}" \
-                  "https://api.cloudflare.com/client/v4/accounts/${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/$worker")
-                
-                if [ "$del_status" = "200" ]; then
-                  echo "  ✅ Deleted"
-                  SUCCESS=$((SUCCESS + 1))
-                else
-                  echo "  ❌ Delete failed"
+              "https://api.cloudflare.com/client/v4/accounts/${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/$worker" 2>/dev/null); then
+
+              case $status in
+                200)
+                  # Delete with secure curl options
+                  if del_status=$(curl -s --fail --max-time 30 -o /dev/null -w "%{http_code}" -X DELETE \
+                    -H "Authorization: Bearer ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}" \
+                    "https://api.cloudflare.com/client/v4/accounts/${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/$worker" 2>/dev/null); then
+
+                    if [ "$del_status" = "200" ]; then
+                      echo "  ✅ Deleted successfully"
+                      SUCCESS=$((SUCCESS + 1))
+                    else
+                      echo "  ❌ Delete failed (HTTP $del_status)"
+                      ERROR=$((ERROR + 1))
+                    fi
+                  else
+                    echo "  ❌ Delete request failed"
+                    ERROR=$((ERROR + 1))
+                  fi
+                  ;;
+                404)
+                  echo "  ℹ️ Worker not found"
+                  NOTFOUND=$((NOTFOUND + 1))
+                  ;;
+                *)
+                  echo "  ⚠️ Unexpected status: $status"
                   ERROR=$((ERROR + 1))
-                fi
-                ;;
-              404)
-                echo "  ℹ️ Not found"
-                NOTFOUND=$((NOTFOUND + 1))
-                ;;
-              *)
-                echo "  ⚠️ Check failed"
-                ERROR=$((ERROR + 1))
-                ;;
-            esac
+                  ;;
+              esac
+            else
+              echo "  ❌ Check request failed or timed out"
+              ERROR=$((ERROR + 1))
+            fi
           done
           
           # Summary
