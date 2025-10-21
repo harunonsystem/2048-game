@@ -34,7 +34,7 @@
     "esbuild": "0.25.9",
     "jsdom": "^25.0.1",
     "typescript": "^5.7.2",
-    "vite": "^6.3.6",
+    "vite": "^6.4.1",
     "vitest": "3.2.4",
     "wrangler": "^4.0.0"
   }
