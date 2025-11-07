@@ -2,12 +2,12 @@
 
 ## Build/Test Commands
 ```bash
-npm run dev              # Start dev server at http://localhost:5173
-npm run build            # Build production bundle
-npm run test:run         # Run all tests once (non-watch)
-npm run test -- path/to/test.ts  # Run single test file
-npm run test:e2e         # Run end-to-end tests
-npm run typecheck        # Check TypeScript types
+pnpm dev                 # Start dev server at http://localhost:5173
+pnpm build               # Build production bundle
+pnpm test:run            # Run all tests once (non-watch)
+pnpm test -- path/to/test.ts  # Run single test file
+pnpm test:e2e            # Run end-to-end tests
+pnpm typecheck           # Check TypeScript types
 ```
 
 ## Code Style & Standards
