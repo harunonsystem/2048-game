@@ -27,14 +27,15 @@
     "@cloudflare/kv-asset-handler": "^0.4.0"
   },
    "devDependencies": {
-     "@playwright/test": "1.56.1",
-     "@types/node": "^24.10.0",
-     "@vitest/ui": "4.0.7",
-     "esbuild": "0.25.12",
-     "jsdom": "^27.1.0",
-     "typescript": "^5.9.3",
-     "vite": "^7.1.12",
-     "vitest": "4.0.7",
-     "wrangler": "^4.45.4"
-   }
-}
+      "@playwright/test": "1.56.1",
+      "@types/node": "^24.10.0",
+      "@vitest/ui": "4.0.7",
+      "esbuild": "0.25.12",
+      "jsdom": "^27.1.0",
+      "typescript": "^5.9.3",
+      "vite": "^7.1.12",
+      "vitest": "4.0.7",
+      "wrangler": "^4.45.4"
+    }
+  }
+  
