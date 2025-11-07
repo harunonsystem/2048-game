@@ -5,18 +5,64 @@
     "helpers:pinGitHubActionDigestsToSemver"
   ],
   "minimumReleaseAge": "3 days",
+  "schedule": ["before 4am on Monday"],
+  "timezone": "Asia/Tokyo",
+  "labels": ["dependencies"],
+  "assignees": [],
+  "reviewers": [],
+  "semanticCommits": "enabled",
+  "separateMinorPatch": true,
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 0,
   "packageRules": [
     {
+      "description": "Security updates - immediate",
+      "matchUpdateTypes": ["patch"],
+      "matchCurrentVersion": "!/^0/",
+      "matchDepTypes": ["dependencies", "devDependencies"],
+      "matchDatasources": ["npm"],
+      "vulnerabilitySeverity": ["high", "critical"],
+      "minimumReleaseAge": "0 days",
+      "labels": ["security", "dependencies"],
+      "automerge": false
+    },
+    {
+      "description": "GitHub Actions - weekly with longer wait",
       "matchManagers": ["github-actions"],
+      "minimumReleaseAge": "7 days",
+      "schedule": ["before 4am on Monday"]
+    },
+    {
+      "description": "Major updates - bi-weekly with extra wait",
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "14 days",
+      "schedule": ["before 4am on the first day of the month"],
+      "labels": ["major-update", "dependencies"]
+    },
+    {
+      "description": "Minor and patch updates - weekly",
+      "matchUpdateTypes": ["minor", "patch"],
+      "minimumReleaseAge": "3 days",
+      "groupName": "dependencies (non-major)",
+      "schedule": ["before 4am on Monday"]
+    },
+    {
+      "description": "Playwright - group and test carefully",
+      "matchPackageNames": ["@playwright/test", "playwright"],
+      "groupName": "Playwright",
       "minimumReleaseAge": "7 days"
     },
     {
-      "matchUpdateTypes": ["major"],
-      "minimumReleaseAge": "14 days"
+      "description": "Vite and build tools - group together",
+      "matchPackageNames": ["vite", "vitest", "@vitest/ui", "esbuild", "typescript"],
+      "groupName": "Build tooling",
+      "minimumReleaseAge": "5 days"
     },
     {
-      "vulnerabilityAlerts": true,
-      "minimumReleaseAge": "0 days"
+      "description": "Cloudflare packages",
+      "matchPackagePatterns": ["^@cloudflare/", "^wrangler$"],
+      "groupName": "Cloudflare",
+      "minimumReleaseAge": "5 days"
     }
   ]
 }
