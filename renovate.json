@@ -63,7 +63,6 @@
       "groupName": "Cloudflare",
       "minimumReleaseAge": "5 days",
       "matchPackageNames": ["/^@cloudflare//", "/^wrangler$/"]
-    },
-
+    }
   ]
 }
