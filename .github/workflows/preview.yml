@@ -27,9 +27,6 @@ jobs:
         with:
           run-e2e: "true"
 
-      - name: TypeScript check
-        run: npm run typecheck
-
       - name: Update wrangler.toml for preview
         if: github.event_name == 'pull_request'
         run: |

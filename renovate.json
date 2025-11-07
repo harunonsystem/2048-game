@@ -4,6 +4,13 @@
     "config:recommended",
     "helpers:pinGitHubActionDigestsToSemver"
   ],
+  "pnpm": {
+    "lockfileMaintenance": {
+      "enabled": true,
+      "schedule": ["before 4am on Monday"]
+    }
+  },
+  "rangeStrategy": "bump",
   "minimumReleaseAge": "3 days",
   "schedule": ["before 4am on Monday"],
   "timezone": "Asia/Tokyo",
@@ -62,6 +69,13 @@
       "matchPackagePatterns": ["^@cloudflare/", "^wrangler$"],
       "groupName": "Cloudflare",
       "minimumReleaseAge": "5 days"
+    },
+    {
+      "description": "pnpm package manager and GitHub Action",
+      "matchPackageNames": ["pnpm", "pnpm/action-setup"],
+      "matchManagers": ["npm", "github-actions"],
+      "groupName": "pnpm",
+      "minimumReleaseAge": "7 days"
     }
   ]
 }
