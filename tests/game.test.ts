@@ -35,7 +35,7 @@ class TestableGame2048 {
   private currentTargetLevel: number = 2048; // Direct game mode value instead of index
   private completedLevels: Set<number> = new Set();
   public readonly achievementLevels: readonly number[] = [
-    2048, 4096, 8192, 16384, 32768, 65536,
+    2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288,
   ] as const;
 
   constructor() {
@@ -536,6 +536,90 @@ describe("Game2048", () => {
 
       // Should win at 8192 when target is 8192
       expect(game.getGameWon()).toBe(true);
+    });
+
+    it("should win at 131072 when in 131072 mode", async () => {
+      // Set target to 131072 mode
+      game.setCurrentTargetLevel(131072);
+
+      // Create a board with a 131072 tile
+      game.createTestBoard([
+        [131072, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+      ]);
+
+      await game.checkAchievements();
+
+      // Should win at 131072 when target is 131072
+      expect(game.getGameWon()).toBe(true);
+
+      // Check that message is displayed
+      const gameMessage = document.getElementById("game-message")!;
+      expect(gameMessage.classList.contains("hidden")).toBe(false);
+    });
+
+    it("should win at 262144 when in 262144 mode", async () => {
+      // Set target to 262144 mode
+      game.setCurrentTargetLevel(262144);
+
+      // Create a board with a 262144 tile
+      game.createTestBoard([
+        [262144, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+      ]);
+
+      await game.checkAchievements();
+
+      // Should win at 262144 when target is 262144
+      expect(game.getGameWon()).toBe(true);
+
+      // Check that message is displayed
+      const gameMessage = document.getElementById("game-message")!;
+      expect(gameMessage.classList.contains("hidden")).toBe(false);
+    });
+
+    it("should win at 524288 when in 524288 mode", async () => {
+      // Set target to 524288 mode
+      game.setCurrentTargetLevel(524288);
+
+      // Create a board with a 524288 tile
+      game.createTestBoard([
+        [524288, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+      ]);
+
+      await game.checkAchievements();
+
+      // Should win at 524288 when target is 524288
+      expect(game.getGameWon()).toBe(true);
+
+      // Check that message is displayed
+      const gameMessage = document.getElementById("game-message")!;
+      expect(gameMessage.classList.contains("hidden")).toBe(false);
+    });
+
+    it("should not win at lower tiles when in 131072 mode", async () => {
+      // Set target to 131072 mode
+      game.setCurrentTargetLevel(131072);
+
+      // Create a board with a 65536 tile
+      game.createTestBoard([
+        [65536, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+        [null, null, null, null],
+      ]);
+
+      await game.checkAchievements();
+
+      // Should NOT win at 65536 when target is 131072
+      expect(game.getGameWon()).toBe(false);
     });
   });
 

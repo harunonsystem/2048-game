@@ -17,6 +17,9 @@ export interface Translation {
   achievement16384: string;
   achievement32768: string;
   achievement65536: string;
+  achievement131072: string;
+  achievement262144: string;
+  achievement524288: string;
   keepGoing: string;
   gameOver: string;
   noMovesLeft: string;
@@ -31,7 +34,7 @@ export interface Translations {
 
 export type Language = "ja" | "en";
 export type Direction = "left" | "right" | "up" | "down";
-export type GameMode = 2048 | 4096 | 8192 | 16384 | 32768 | 65536;
+export type GameMode = 2048 | 4096 | 8192 | 16384 | 32768 | 65536 | 131072 | 262144 | 524288;
 
 export interface GameState {
   board: (number | null)[][];
