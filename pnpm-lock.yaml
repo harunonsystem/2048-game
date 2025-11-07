@@ -16,7 +16,7 @@ importers:
         specifier: 1.56.1
         version: 1.56.1
       '@types/node':
-        specifier: ^24.9.2
+        specifier: ^24.10.0
         version: 24.10.0
       '@vitest/ui':
         specifier: 4.0.6
