@@ -16,12 +16,12 @@
   "prHourlyLimit": 0,
   "packageRules": [
     {
-      "description": "Security-like patch updates - prioritize",
+      "description": "Security updates - immediate",
       "matchUpdateTypes": ["patch"],
       "matchCurrentVersion": "!/^0/",
       "matchDepTypes": ["dependencies", "devDependencies"],
       "matchDatasources": ["npm"],
-      "priority": 100,
+      "minimumReleaseAge": "0 days",
       "labels": ["security", "dependencies"],
       "automerge": false
     },
