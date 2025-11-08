@@ -2,12 +2,12 @@
 
 ## Build/Test Commands
 ```bash
-npm run dev              # Start dev server at http://localhost:5173
-npm run build            # Build production bundle
-npm run test:run         # Run all tests once (non-watch)
-npm run test -- path/to/test.ts  # Run single test file
-npm run test:e2e         # Run end-to-end tests
-npm run typecheck        # Check TypeScript types
+pnpm dev              # Start dev server at http://localhost:5173
+pnpm build            # Build production bundle
+pnpm test:run         # Run all tests once (non-watch)
+pnpm test -- path/to/test.ts  # Run single test file
+pnpm test:e2e         # Run end-to-end tests
+pnpm typecheck        # Check TypeScript types
 ```
 
 ## Code Style & Standards
@@ -21,7 +21,7 @@ npm run typecheck        # Check TypeScript types
 - **Error Handling**: Graceful fallbacks, no silent failures in critical code paths
 - **Environment**: Use `import.meta.env.PROD` for production-specific logic
 - **Comments**: Minimal inline comments, prefer self-documenting code
-- **Formatting**: Run `npm run test:run` to verify code works before committing
+- **Formatting**: Run `pnpm test:run` to verify code works before committing
 
 ## Architecture
 - Game logic: `Game2048` class (src/main.ts)
