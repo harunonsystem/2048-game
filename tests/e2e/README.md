@@ -45,19 +45,19 @@ This directory contains comprehensive end-to-end tests using Playwright for the 
 
 ```bash
 # Run all E2E tests
-npm run test:e2e
+pnpm test:e2e
 
 # Run with UI mode
-npm run test:e2e:ui
+pnpm test:e2e:ui
 
 # Run in headed mode (see browser)
-npm run test:e2e:headed
+pnpm test:e2e:headed
 
 # Run in debug mode
-npm run test:e2e:debug
+pnpm test:e2e:debug
 
 # Run specific test file
-npm run test:e2e tests/e2e/game-basic.spec.ts
+pnpm test:e2e tests/e2e/game-basic.spec.ts
 ```
 
 ## Test Structure

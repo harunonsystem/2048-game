@@ -1,5 +1,5 @@
 name: "Setup Node.js and Dependencies"
-description: "Setup Node.js environment and install npm dependencies with caching"
+description: "Setup Node.js environment and install pnpm dependencies with caching"
 
 inputs:
   node-version:
@@ -9,7 +9,7 @@ inputs:
 
 outputs:
   cache-hit:
-    description: "Whether npm cache was hit"
+    description: "Whether pnpm cache was hit"
     value: ${{ steps.cache-deps.outputs.cache-hit }}
 
 runs:
@@ -19,7 +19,19 @@ runs:
       uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
       with:
         node-version-file: ".node-version"
-        cache: "npm"
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 10
+
+    - name: Cache pnpm store
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      with:
+        path: ~/.pnpm-store
+        key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: |
+          pnpm-store-${{ runner.os }}-
 
     - name: Cache build artifacts
       uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -27,10 +39,10 @@ runs:
         path: |
           dist
           .vite
-        key: build-${{ runner.os }}-${{ hashFiles('src/**/*', 'package-lock.json') }}
+        key: build-${{ runner.os }}-${{ hashFiles('src/**/*', 'pnpm-lock.yaml') }}
         restore-keys: |
           build-${{ runner.os }}-
 
     - name: Install dependencies
       shell: bash
-      run: npm install --ignore-scripts
+      run: pnpm install --frozen-lockfile
