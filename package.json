@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": ">=24.0.0",
+    "node": ">=24.0.2",
     "pnpm": ">=10.0.0"
   },
   "packageManager": "pnpm@10.20.0",
@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.1",
     "@vitest/ui": "4.0.7",
     "esbuild": "0.25.12",
     "jsdom": "^27.1.0",
