@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@cloudflare/kv-asset-handler':
-        specifier: ^0.4.0
-        version: 0.4.0
+        specifier: ^0.4.1
+        version: 0.4.1
     devDependencies:
       '@playwright/test':
         specifier: 1.56.1
@@ -37,7 +37,7 @@ importers:
         specifier: 4.0.10
         version: 4.0.10(@types/node@24.10.1)(@vitest/ui@4.0.10)(jsdom@27.2.0)
       wrangler:
-        specifier: ^4.49.0
+        specifier: ^4.49.1
         version: 4.50.0
 
 packages:
@@ -56,6 +56,10 @@ packages:
 
   '@cloudflare/kv-asset-handler@0.4.0':
     resolution: {integrity: sha512-+tv3z+SPp+gqTIcImN9o0hqE9xyfQjI1XD9pL6NuKjua9B1y7mNYv0S9cP+QEbA4ppVgGZEmKOvHX5G5Ei1CVA==}
+    engines: {node: '>=18.0.0'}
+
+  '@cloudflare/kv-asset-handler@0.4.1':
+    resolution: {integrity: sha512-Nu8ahitGFFJztxUml9oD/DLb7Z28C8cd8F46IVQ7y5Btz575pvMY8AqZsXkX7Gds29eCKdMgIHjIvzskHgPSFg==}
     engines: {node: '>=18.0.0'}
 
   '@cloudflare/unenv-preset@2.7.11':
@@ -1418,6 +1422,10 @@ snapshots:
   '@asamuzakjp/nwsapi@2.3.9': {}
 
   '@cloudflare/kv-asset-handler@0.4.0':
+    dependencies:
+      mime: 3.0.0
+
+  '@cloudflare/kv-asset-handler@0.4.1':
     dependencies:
       mime: 3.0.0
 
