@@ -24,7 +24,7 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
       - name: Cleanup PR Worker
-        uses: harunonsystem/cf-workers-actions/cleanup@142159018e6085455db6bcebced56d9d2aeb2ee0 # v1.0.0
+        uses: harunonsystem/cf-workers-actions/cleanup@be6a0f0af0180916927466ce74ea287c051d9e81 # v1.0.1
         with:
           worker-names: '2048-game-pr-${{ github.event.pull_request.number }}'
           cloudflare-api-token: ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}
@@ -35,23 +35,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
     steps:
-      # TODO: Remove this validation once implemented in upstream action
-      # Tracking issue: https://github.com/harunonsystem/cf-workers-actions/issues/6
-      - name: Validate Inputs
-        run: |
-          PATTERN="${{ github.event.inputs.worker_pattern }}"
-          NAMES="${{ github.event.inputs.worker_names }}"
-          
-          if [[ -n "$PATTERN" && -n "$NAMES" ]]; then
-            echo "::error::Both worker_pattern and worker_names provided. Please provide only one."
-            exit 1
-          fi
-          
-          if [[ -z "$PATTERN" && -z "$NAMES" ]]; then
-            echo "::error::Neither worker_pattern nor worker_names provided. Please provide exactly one."
-            exit 1
-          fi
-
       - name: Load secrets
         id: load-secrets
         uses: ./.github/actions/load-1password-secrets
@@ -59,7 +42,7 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
       - name: Cleanup Workers
-        uses: harunonsystem/cf-workers-actions/cleanup@142159018e6085455db6bcebced56d9d2aeb2ee0 # v1.0.0
+        uses: harunonsystem/cf-workers-actions/cleanup@be6a0f0af0180916927466ce74ea287c051d9e81 # v1.0.1
         with:
           worker-pattern: ${{ github.event.inputs.worker_pattern }}
           worker-names: ${{ github.event.inputs.worker_names }}

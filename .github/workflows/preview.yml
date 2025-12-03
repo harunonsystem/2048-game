@@ -34,7 +34,7 @@ jobs:
 
       - name: Preview Deploy
         id: deploy
-        uses: harunonsystem/cf-workers-actions/preview-deploy@142159018e6085455db6bcebced56d9d2aeb2ee0 # v1.0.0
+        uses: harunonsystem/cf-workers-actions/preview-deploy@be6a0f0af0180916927466ce74ea287c051d9e81 # v1.0.1
         with:
           cloudflare-api-token: ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}
           cloudflare-account-id: ${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}
@@ -42,7 +42,7 @@ jobs:
           domain: 'harunonsystem.workers.dev'
 
       - name: Comment PR
-        uses: harunonsystem/cf-workers-actions/pr-comment@142159018e6085455db6bcebced56d9d2aeb2ee0 # v1.0.0
+        uses: harunonsystem/cf-workers-actions/pr-comment@be6a0f0af0180916927466ce74ea287c051d9e81 # v1.0.1
         with:
           deployment-url: ${{ steps.deploy.outputs.deployment-url }}
           deployment-success: ${{ steps.deploy.outputs.deployment-success }}
