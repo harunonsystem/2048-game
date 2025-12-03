@@ -1,4 +1,4 @@
-name: Deploy to Preview
+name: Decomposed Preview Deploy
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  test-and-deploy:
+  test-decomposed-pattern:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -36,13 +36,13 @@ jobs:
         id: prepare
         uses: harunonsystem/cf-workers-actions/prepare-preview-deploy@adb67e717369889dd9bd1d9ebb8aa8039c133e21 # v1.0.2
         with:
-          worker-name: '2048-game-pr-${{ github.event.pull_request.number }}'
+          worker-name: '2048-game-decomposed-${{ github.event.pull_request.number }}'
           domain: 'harunonsystem.workers.dev'
           environment: 'preview'
 
       - name: Deploy with Wrangler
         id: deploy
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3
+        uses: cloudflare/wrangler-action@f84a562284fc7457be972927530502d65d232849 # v3.14.0
         with:
           apiToken: ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}
