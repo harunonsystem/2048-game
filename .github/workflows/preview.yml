@@ -34,16 +34,18 @@ jobs:
 
       - name: Preview Deploy
         id: deploy
-        uses: harunonsystem/cf-workers-actions/preview-deploy@be6a0f0af0180916927466ce74ea287c051d9e81 # v1.0.1
+        uses: harunonsystem/cf-workers-actions/preview-deploy@adb67e717369889dd9bd1d9ebb8aa8039c133e21 # v1.0.2
         with:
           cloudflare-api-token: ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}
           cloudflare-account-id: ${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}
           worker-name: '2048-game-pr-${{ github.event.pull_request.number }}'
           domain: 'harunonsystem.workers.dev'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Comment PR
-        uses: harunonsystem/cf-workers-actions/pr-comment@be6a0f0af0180916927466ce74ea287c051d9e81 # v1.0.1
+        uses: harunonsystem/cf-workers-actions/pr-comment@adb67e717369889dd9bd1d9ebb8aa8039c133e21 # v1.0.2
         with:
           deployment-url: ${{ steps.deploy.outputs.deployment-url }}
           deployment-success: ${{ steps.deploy.outputs.deployment-success }}
           deployment-name: ${{ steps.deploy.outputs.deployment-name }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
