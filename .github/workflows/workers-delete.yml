@@ -5,127 +5,47 @@ on:
     types: [closed]
   workflow_dispatch:
     inputs:
-      worker_prefix:
-        description: 'Worker prefix (e.g., "2048-game-pr" or "example-")'
-        type: string
-        default: '2048-game-pr-' # Default for PR workers
-      worker_numbers:
-        description: 'Numbers to delete (e.g., "1,2,3")'
-        required: true
-        type: string
+      worker_pattern:
+        description: 'Worker pattern to delete (e.g., "2048-game-pr-*")'
+        required: false
       worker_names:
-        description: 'Full names (optional, overrides prefix+numbers)'
-        type: string
-      confirm_deletion:
-        description: 'Type "DELETE" to confirm'
-        required: true
-        type: string
+        description: 'Specific worker names to delete (comma-separated)'
+        required: false
 
-env:
-  DEFAULT_WORKER_PREFIX: '2048-game-pr-'
-
-permissions:
-  contents: read
 jobs:
-  delete-workers:
+  pr-cleanup:
     runs-on: ubuntu-latest
-    if: >
-      github.event_name == 'pull_request' ||
-      github.event_name == 'workflow_dispatch'
-    
+    if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
-
-      - name: Validate
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.confirm_deletion }}" != "DELETE" ]; then
-            echo "❌ Must type 'DELETE' to confirm"
-            exit 1
-          fi
-
       - name: Load secrets
         id: load-secrets
         uses: ./.github/actions/load-1password-secrets
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
-      - name: Delete workers
-        run: |
-          # Set PREFIX based on worker_prefix availability
-          if [ -n "${{ github.event.inputs.worker_prefix }}" ]; then
-            # workflow_dispatch: worker_prefix exists
-            PREFIX="${{ github.event.inputs.worker_prefix }}"
-          else
-            # pull_request: worker_prefix doesn't exist
-            PREFIX="$DEFAULT_WORKER_PREFIX"
-          fi
-          
-          # Generate worker list
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            WORKERS=("${PREFIX}${{ github.event.pull_request.number }}")
-          elif [ -n "${{ github.event.inputs.worker_names }}" ]; then
-            IFS=',' read -ra WORKERS <<< "${{ github.event.inputs.worker_names }}"
-          else
-            IFS=',' read -ra NUMS <<< "${{ github.event.inputs.worker_numbers }}"
-            WORKERS=()
-            for num in "${NUMS[@]}"; do
-              num=$(echo $num | tr -d ' ')
-              WORKERS+=("${PREFIX}${num}")
-            done
-          fi
-          
-          # Delete workers
-          SUCCESS=0 NOTFOUND=0 ERROR=0
-          for worker in "${WORKERS[@]}"; do
-            worker=$(echo "$worker" | tr -d ' ')
-            [ -z "$worker" ] && continue
-            
-            echo "Processing: $worker"
-            
-            # Check exists with secure curl options
-            if status=$(curl -s --fail --max-time 30 -o /dev/null -w "%{http_code}" \
-              -H "Authorization: Bearer ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}" \
-              "https://api.cloudflare.com/client/v4/accounts/${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/$worker" 2>/dev/null); then
+      - name: Cleanup PR Worker
+        uses: harunonsystem/cf-workers-actions/cleanup@142159018e6085455db6bcebced56d9d2aeb2ee0 # v1.0.0
+        with:
+          worker-names: '2048-game-pr-${{ github.event.pull_request.number }}'
+          cloudflare-api-token: ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}
+          cloudflare-account-id: ${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}
+          dry-run: false
 
-              case $status in
-                200)
-                  # Delete with secure curl options
-                  if del_status=$(curl -s --fail --max-time 30 -o /dev/null -w "%{http_code}" -X DELETE \
-                    -H "Authorization: Bearer ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}" \
-                    "https://api.cloudflare.com/client/v4/accounts/${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}/workers/scripts/$worker" 2>/dev/null); then
+  manual-cleanup:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Load secrets
+        id: load-secrets
+        uses: ./.github/actions/load-1password-secrets
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
-                    if [ "$del_status" = "200" ]; then
-                      echo "  ✅ Deleted successfully"
-                      SUCCESS=$((SUCCESS + 1))
-                    else
-                      echo "  ❌ Delete failed (HTTP $del_status)"
-                      ERROR=$((ERROR + 1))
-                    fi
-                  else
-                    echo "  ❌ Delete request failed"
-                    ERROR=$((ERROR + 1))
-                  fi
-                  ;;
-                404)
-                  echo "  ℹ️ Worker not found"
-                  NOTFOUND=$((NOTFOUND + 1))
-                  ;;
-                *)
-                  echo "  ⚠️ Unexpected status: $status"
-                  ERROR=$((ERROR + 1))
-                  ;;
-              esac
-            else
-              echo "  ❌ Check request failed or timed out"
-              ERROR=$((ERROR + 1))
-            fi
-          done
-          
-          # Summary
-           echo ""
-           echo "📊 Results: ✅$SUCCESS ℹ️$NOTFOUND ❌$ERROR"
-           
-           if [ $ERROR -gt 0 ]; then
-             echo "⚠️ Some operations failed. Check the logs above for details."
-             exit 1
-           fi
+      - name: Cleanup Workers
+        uses: harunonsystem/cf-workers-actions/cleanup@142159018e6085455db6bcebced56d9d2aeb2ee0 # v1.0.0
+        with:
+          worker-pattern: ${{ github.event.inputs.worker_pattern }}
+          worker-names: ${{ github.event.inputs.worker_names }}
+          cloudflare-api-token: ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}
+          cloudflare-account-id: ${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}
+          dry-run: false
