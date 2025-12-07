@@ -27,7 +27,7 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
       - name: Cleanup PR Worker
-        uses: harunonsystem/cf-workers-actions/cleanup@adb67e717369889dd9bd1d9ebb8aa8039c133e21 # v1.0.2
+        uses: harunonsystem/cf-workers-actions/cleanup@e4060dbe4e6b89cf72a26b1afc940f11225b94eb # v1.0.3
         with:
           worker-names: '2048-game-pr-${{ github.event.pull_request.number }}'
           cloudflare-api-token: ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}
@@ -48,7 +48,7 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
       - name: Cleanup Workers
-        uses: harunonsystem/cf-workers-actions/cleanup@adb67e717369889dd9bd1d9ebb8aa8039c133e21 # v1.0.2
+        uses: harunonsystem/cf-workers-actions/cleanup@e4060dbe4e6b89cf72a26b1afc940f11225b94eb # v1.0.3
         with:
           worker-pattern: ${{ github.event.inputs.worker_pattern }}
           worker-names: ${{ github.event.inputs.worker_names }}
