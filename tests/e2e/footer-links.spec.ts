@@ -23,21 +23,22 @@ test.describe('2048 Game - Footer Links', () => {
   });
 
   test('should have correct href attributes', async ({ gamePage }) => {
-    await expect(gamePage.contactLink).toHaveAttribute('href', 'https://x.com/harunonsystem');
+    await expect(gamePage.contactLink).toHaveAttribute('href', 'mailto:contact@harunon.club');
     await expect(gamePage.sponsorLink).toHaveAttribute('href', 'https://github.com/sponsors/harunonsystem');
     await expect(gamePage.coffeeLink).toHaveAttribute('href', 'https://www.buymeacoffee.com/harunonsystem');
   });
 
   test('should have correct target and rel attributes for external links', async ({ gamePage }) => {
-    // All links should open in new tab
-    await expect(gamePage.contactLink).toHaveAttribute('target', '_blank');
+    // Sponsor and coffee links should open in new tab
     await expect(gamePage.sponsorLink).toHaveAttribute('target', '_blank');
     await expect(gamePage.coffeeLink).toHaveAttribute('target', '_blank');
     
-    // All links should have security attributes
-    await expect(gamePage.contactLink).toHaveAttribute('rel', 'noopener noreferrer');
+    // External links should have security attributes
     await expect(gamePage.sponsorLink).toHaveAttribute('rel', 'noopener noreferrer');
     await expect(gamePage.coffeeLink).toHaveAttribute('rel', 'noopener noreferrer');
+    
+    // Contact link (mailto) should not have target=_blank
+    await expect(gamePage.contactLink).not.toHaveAttribute('target', '_blank');
   });
 
   test('should have proper CSS classes and styling', async ({ gamePage }) => {
