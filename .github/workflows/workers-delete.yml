@@ -5,8 +5,11 @@ on:
     types: [closed]
   workflow_dispatch:
     inputs:
-      worker_pattern:
-        description: 'Worker pattern to delete (e.g., "2048-game-pr-*")'
+      worker_prefix:
+        description: 'Worker prefix to delete (e.g., "2048-game-pr-")'
+        required: false
+      worker_numbers:
+        description: 'Worker numbers to delete (comma-separated, e.g., "123,456")'
         required: false
       worker_names:
         description: 'Specific worker names to delete (comma-separated)'
@@ -27,7 +30,7 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
       - name: Cleanup PR Worker
-        uses: harunonsystem/cf-workers-actions/cleanup@adb67e717369889dd9bd1d9ebb8aa8039c133e21 # v1.0.2
+        uses: harunonsystem/cf-workers-actions/cleanup@f237e5a60fd394e213b857415501242246cbac8f # v1.0.4
         with:
           worker-names: '2048-game-pr-${{ github.event.pull_request.number }}'
           cloudflare-api-token: ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}
@@ -48,9 +51,10 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
       - name: Cleanup Workers
-        uses: harunonsystem/cf-workers-actions/cleanup@adb67e717369889dd9bd1d9ebb8aa8039c133e21 # v1.0.2
+        uses: harunonsystem/cf-workers-actions/cleanup@f237e5a60fd394e213b857415501242246cbac8f # v1.0.4
         with:
-          worker-pattern: ${{ github.event.inputs.worker_pattern }}
+          worker-prefix: ${{ github.event.inputs.worker_prefix }}
+          worker-numbers: ${{ github.event.inputs.worker_numbers }}
           worker-names: ${{ github.event.inputs.worker_names }}
           cloudflare-api-token: ${{ steps.load-secrets.outputs.CLOUDFLARE_API_TOKEN }}
           cloudflare-account-id: ${{ steps.load-secrets.outputs.CLOUDFLARE_ACCOUNT_ID }}
