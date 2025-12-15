@@ -25,9 +25,6 @@
     "test:e2e:mobile": "playwright test --project=\"Mobile Chrome\" --project=\"Mobile Safari\"",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "@cloudflare/kv-asset-handler": "^0.4.1"
-  },
   "devDependencies": {
     "@playwright/test": "1.57.0",
     "@types/node": "^24.10.3",
