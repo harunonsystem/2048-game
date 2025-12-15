@@ -7,7 +7,7 @@
     "node": ">=24.11.1",
     "pnpm": ">=10.24.0"
   },
-  "packageManager": "pnpm@10.24.0",
+  "packageManager": "pnpm@10.25.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -24,9 +24,6 @@
     "test:e2e:firefox": "playwright test --project=firefox",
     "test:e2e:mobile": "playwright test --project=\"Mobile Chrome\" --project=\"Mobile Safari\"",
     "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@cloudflare/kv-asset-handler": "^0.4.1"
   },
   "devDependencies": {
     "@playwright/test": "1.57.0",

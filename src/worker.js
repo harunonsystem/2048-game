@@ -1,25 +1,22 @@
-import { getAssetFromKV } from "@cloudflare/kv-asset-handler";
-
+/**
+ * 2048 Game Worker
+ *
+ * Wrangler 3+ の [assets] 設定により、静的アセットは自動的に配信される。
+ * このWorkerはアセットが見つからない場合のフォールバック処理のみを担当。
+ */
 export default {
-  async fetch(request, env, ctx) {
-    try {
-      // Serve static assets
-      return await getAssetFromKV(request, {
-        ASSET_NAMESPACE: env.__STATIC_CONTENT,
-        ASSET_MANIFEST: env.__STATIC_CONTENT_MANIFEST,
-      });
-    } catch (e) {
-      // If asset not found, serve index.html for SPA routing
-      try {
-        return await getAssetFromKV(request, {
-          ASSET_NAMESPACE: env.__STATIC_CONTENT,
-          ASSET_MANIFEST: env.__STATIC_CONTENT_MANIFEST,
-          mapRequestToAsset: (req) =>
-            new Request(`${new URL(req.url).origin}/index.html`, req),
-        });
-      } catch (e) {
-        return new Response("Not found", { status: 404 });
-      }
+  async fetch(request, env) {
+    // ASSETS binding を通じてアセットを取得
+    const response = await env.ASSETS.fetch(request);
+
+    // アセットが見つかった場合はそのまま返す
+    if (response.status !== 404) {
+      return response;
     }
+
+    // 404 の場合は SPA ルーティング用に index.html を返す
+    const url = new URL(request.url);
+    url.pathname = "/index.html";
+    return env.ASSETS.fetch(new Request(url, request));
   },
 };
