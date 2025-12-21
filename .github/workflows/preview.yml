@@ -34,7 +34,7 @@ jobs:
 
       - name: Prepare Preview Deploy
         id: prepare
-        uses: harunonsystem/cf-workers-actions/prepare-preview-deploy@891e8c891cf5b8df912b620dadfded01b97b389f # v1.0.5
+        uses: harunonsystem/cf-workers-actions/prepare-preview-deploy@185b45ca868f70d3dcffdb0960f945fe4c27b1bf # v1.1.0
         with:
           worker-name: '2048-game-pr-${{ github.event.pull_request.number }}'
           domain: 'harunonsystem.workers.dev'
@@ -49,7 +49,7 @@ jobs:
           command: deploy --env preview
 
       - name: Comment PR
-        uses: harunonsystem/cf-workers-actions/pr-comment@891e8c891cf5b8df912b620dadfded01b97b389f # v1.0.5
+        uses: harunonsystem/cf-workers-actions/pr-comment@185b45ca868f70d3dcffdb0960f945fe4c27b1bf # v1.1.0
         with:
           deployment-url: ${{ steps.prepare.outputs.deployment-url }}
           deployment-success: ${{ steps.deploy.outcome == 'success' }}
