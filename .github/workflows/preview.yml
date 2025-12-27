@@ -8,6 +8,8 @@ on:
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
+    # PRがオープン状態の場合のみ実行（マージ後のrebaseによる再デプロイを防止）
+    if: github.event.pull_request.state == 'open'
     permissions:
       contents: read
       actions: read
