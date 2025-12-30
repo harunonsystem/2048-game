@@ -1,11 +1,6 @@
 name: "Setup Node.js and Dependencies"
 description: "Setup Node.js environment and install pnpm dependencies with caching"
 
-outputs:
-  cache-hit:
-    description: "Whether pnpm cache was hit"
-    value: ${{ steps.cache-deps.outputs.cache-hit }}
-
 runs:
   using: "composite"
   steps:
