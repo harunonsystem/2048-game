@@ -1,27 +1,14 @@
 name: "Setup Node.js and Dependencies"
 description: "Setup Node.js environment and install pnpm dependencies with caching"
 
-inputs:
-  node-version:
-    description: "Node.js version to use (optional, will use .node-version file by default)"
-    required: false
-    default: ""
-
-outputs:
-  cache-hit:
-    description: "Whether pnpm cache was hit"
-    value: ${{ steps.cache-deps.outputs.cache-hit }}
-
 runs:
   using: "composite"
   steps:
-    - name: Setup Node.js
-      uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+    - name: Setup mise
+      uses: jdx/mise-action@15673661092cf7b14500f86491c4e807bf3cd4b8 # v3.5.1
       with:
-        node-version-file: ".node-version"
-
-    - name: Setup pnpm
-      uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+        install: true
+        cache: true
 
     - name: Cache pnpm store
       uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
