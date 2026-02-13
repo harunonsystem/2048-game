@@ -6,55 +6,95 @@
   ],
   "rangeStrategy": "bump",
   "minimumReleaseAge": "3 days",
-  "schedule": ["before 4am on Monday"],
+  "schedule": [
+    "before 4am on Monday"
+  ],
   "timezone": "Asia/Tokyo",
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "assignees": [],
   "reviewers": [],
   "semanticCommits": "enabled",
   "separateMinorPatch": true,
+  "automerge": true,
   "prConcurrentLimit": 10,
   "prHourlyLimit": 0,
   "packageRules": [
     {
       "description": "Security updates - immediate",
-      "matchUpdateTypes": ["patch"],
+      "matchUpdateTypes": [
+        "patch"
+      ],
       "matchCurrentVersion": "!/^0/",
-      "matchDepTypes": ["dependencies", "devDependencies"],
-      "matchDatasources": ["npm"],
+      "matchDepTypes": [
+        "dependencies",
+        "devDependencies"
+      ],
+      "matchDatasources": [
+        "npm"
+      ],
       "minimumReleaseAge": "0 days",
-      "labels": ["security", "dependencies"],
+      "labels": [
+        "security",
+        "dependencies"
+      ],
       "automerge": false
     },
     {
       "description": "GitHub Actions - weekly with longer wait",
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "minimumReleaseAge": "7 days",
-      "schedule": ["before 4am on Monday"]
+      "schedule": [
+        "before 4am on Monday"
+      ]
     },
     {
       "description": "Major updates - bi-weekly with extra wait",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "minimumReleaseAge": "14 days",
-      "schedule": ["before 4am on the first day of the month"],
-      "labels": ["major-update", "dependencies"]
+      "schedule": [
+        "before 4am on the first day of the month"
+      ],
+      "labels": [
+        "major-update",
+        "dependencies"
+      ]
     },
     {
       "description": "Minor and patch updates - weekly",
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "minimumReleaseAge": "3 days",
       "groupName": "dependencies (non-major)",
-      "schedule": ["before 4am on Monday"]
+      "schedule": [
+        "before 4am on Monday"
+      ]
     },
     {
       "description": "Playwright - group and test carefully",
-      "matchPackageNames": ["@playwright/test", "playwright"],
+      "matchPackageNames": [
+        "@playwright/test",
+        "playwright"
+      ],
       "groupName": "Playwright",
       "minimumReleaseAge": "7 days"
     },
     {
       "description": "Vite and build tools - group together",
-      "matchPackageNames": ["vite", "vitest", "@vitest/ui", "esbuild", "typescript"],
+      "matchPackageNames": [
+        "vite",
+        "vitest",
+        "@vitest/ui",
+        "esbuild",
+        "typescript"
+      ],
       "groupName": "Build tooling",
       "minimumReleaseAge": "5 days"
     },
@@ -62,7 +102,10 @@
       "description": "Cloudflare packages",
       "groupName": "Cloudflare",
       "minimumReleaseAge": "5 days",
-      "matchPackageNames": ["/^@cloudflare//", "/^wrangler$/"]
+      "matchPackageNames": [
+        "/^@cloudflare//",
+        "/^wrangler$/"
+      ]
     }
   ]
 }
