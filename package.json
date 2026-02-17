@@ -26,7 +26,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@playwright/test": "1.58.1",
+    "@playwright/test": "1.58.2",
     "@types/node": "^24.10.13",
     "@vitest/ui": "4.0.18",
     "jsdom": "^27.4.0",
