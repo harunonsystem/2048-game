@@ -30,7 +30,7 @@ importers:
         specifier: 4.0.18
         version: 4.0.18(@types/node@24.12.0)(@vitest/ui@4.0.18)(jsdom@27.4.0(postcss@8.5.6))
       wrangler:
-        specifier: ^4.70.0
+        specifier: ^4.71.0
         version: 4.71.0
     optionalDependencies:
       '@rollup/rollup-darwin-arm64':
@@ -75,6 +75,12 @@ packages:
     engines: {node: '>=16'}
     cpu: [arm64]
     os: [darwin]
+
+  '@cloudflare/workerd-linux-64@1.20260301.1':
+    resolution: {integrity: sha512-Gu5vaVTZuYl3cHa+u5CDzSVDBvSkfNyuAHi6Mdfut7TTUdcb3V5CIcR/mXRSyMXzEy9YxEWIfdKMxOMBjupvYQ==}
+    engines: {node: '>=16'}
+    cpu: [x64]
+    os: [linux]
 
   '@cloudflare/workerd-linux-arm64@1.20260301.1':
     resolution: {integrity: sha512-igL1pkyCXW6GiGpjdOAvqMi87UW0LMc/+yIQe/CSzuZJm5GzXoAMrwVTkCFnikk6JVGELrM5x0tGYlxa0sk5Iw==}
@@ -1287,6 +1293,9 @@ snapshots:
   '@cloudflare/workerd-darwin-arm64@1.20260301.1':
     optional: true
 
+  '@cloudflare/workerd-linux-64@1.20260301.1':
+    optional: true
+
   '@cloudflare/workerd-linux-arm64@1.20260301.1':
     optional: true
 
@@ -2176,6 +2185,7 @@ snapshots:
     optionalDependencies:
       '@cloudflare/workerd-darwin-64': 1.20260301.1
       '@cloudflare/workerd-darwin-arm64': 1.20260301.1
+      '@cloudflare/workerd-linux-64': 1.20260301.1
       '@cloudflare/workerd-linux-arm64': 1.20260301.1
       '@cloudflare/workerd-windows-64': 1.20260301.1
 
