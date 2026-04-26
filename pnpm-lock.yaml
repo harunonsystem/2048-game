@@ -12,7 +12,7 @@ importers:
         specifier: 1.59.1
         version: 1.59.1
       '@types/node':
-        specifier: ^24.11.0
+        specifier: ^24.11.2
         version: 24.12.0
       '@vitest/ui':
         specifier: 4.1.0
@@ -34,8 +34,8 @@ importers:
         version: 4.83.0
     optionalDependencies:
       '@rollup/rollup-darwin-arm64':
-        specifier: 4.60.0
-        version: 4.60.0
+        specifier: 4.60.2
+        version: 4.60.2
 
 packages:
 
@@ -651,8 +651,8 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@rollup/rollup-darwin-arm64@4.60.0':
-    resolution: {integrity: sha512-qEF7CsKKzSRc20Ciu2Zw1wRrBz4g56F7r/vRwY430UPp/nt1x21Q/fpJ9N5l47WWvJlkNCPJz3QRVw008fi7yA==}
+  '@rollup/rollup-darwin-arm64@4.60.2':
+    resolution: {integrity: sha512-UwRE7CGpvSVEQS8gUMBe1uADWjNnVgP3Iusyda1nSRwNDCsRjnGc7w6El6WLQsXmZTbLZx9cecegumcitNfpmA==}
     cpu: [arm64]
     os: [darwin]
 
@@ -1629,7 +1629,7 @@ snapshots:
   '@rollup/rollup-darwin-arm64@4.52.5':
     optional: true
 
-  '@rollup/rollup-darwin-arm64@4.60.0':
+  '@rollup/rollup-darwin-arm64@4.60.2':
     optional: true
 
   '@rollup/rollup-darwin-x64@4.52.5':
