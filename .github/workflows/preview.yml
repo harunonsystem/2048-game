@@ -38,7 +38,7 @@ jobs:
         id: prepare
         uses: harunonsystem/cf-workers-actions/prepare-preview-deploy@185b45ca868f70d3dcffdb0960f945fe4c27b1bf # v1.1.0
         with:
-          worker-name: '2048-game-pr-${{ github.event.pull_request.number }}'
+          worker-name: '2048-game-{branch-name}'
           domain: 'harunonsystem.workers.dev'
           environment: 'preview'
 
