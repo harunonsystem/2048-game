@@ -540,7 +540,7 @@ class Game2048 {
                 trackEvent("game_won", {
                   mode: level,
                   score: this.score,
-                  highestTile: level,
+                  highestTile: this.getHighestTileValue(),
                   moves: this.moveCount,
                   language: this.currentLanguage,
                 });
