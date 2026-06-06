@@ -27,6 +27,23 @@ class TranslationManager {
   }
 }
 
+// Umami analytics (Production only)
+function loadUmamiAnalytics(): void {
+  if (!import.meta.env.PROD) return;
+
+  const websiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID;
+  if (!websiteId) {
+    console.warn("VITE_UMAMI_WEBSITE_ID is not set; skipping Umami analytics.");
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = "https://analytics.harunonsystem.com/umami.js";
+  script.setAttribute("data-website-id", websiteId);
+  document.head.appendChild(script);
+}
+
 class Game2048 {
   private translationManager: TranslationManager;
   private translations: Translations | null = null;
@@ -792,4 +809,5 @@ class Game2048 {
 // Initialize game when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   new Game2048();
+  loadUmamiAnalytics();
 });
