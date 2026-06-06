@@ -826,7 +826,6 @@ class Game2048 {
       this.currentTargetLevel = targetValue;
       this.saveGameMode();
       this.updateModeButtons();
-      this.restart();
       if (previousMode !== targetValue) {
         trackEvent("mode_change", {
           from: previousMode,
@@ -834,6 +833,7 @@ class Game2048 {
           language: this.currentLanguage,
         });
       }
+      this.restart();
     }
   }
 
