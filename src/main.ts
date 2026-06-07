@@ -32,9 +32,8 @@ class TranslationManager {
 function loadUmamiAnalytics(): void {
   if (!import.meta.env.PROD) return;
 
-  const websiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID;
+  const websiteId = import.meta.env.VITE_UMAMI_WEBSITE_ID_2048_GAME;
   if (!websiteId) {
-    console.warn("VITE_UMAMI_WEBSITE_ID is not set; skipping Umami analytics.");
     return;
   }
 
