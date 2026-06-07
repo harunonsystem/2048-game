@@ -216,10 +216,15 @@ class Game2048 {
       .getElementById("restart-btn")!
       .addEventListener("click", () => this.restart());
     document.getElementById("try-again-btn")!.addEventListener("click", () => {
+      const isGameOver = this.gameOver;
       trackEvent("replay_click", {
-        mode: this.currentTargetLevel,
+        mode: isGameOver
+          ? this.currentTargetLevel
+          : this.achievementLevels[
+              Math.max(0, this.achievementLevels.indexOf(this.currentTargetLevel) - 1)
+            ],
         score: this.score,
-        from: this.gameOver ? "game_over" : "game_won",
+        from: isGameOver ? "game_over" : "game_won",
         language: this.currentLanguage,
       });
       this.restart();
