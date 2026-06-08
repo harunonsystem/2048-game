@@ -36,6 +36,6 @@
     "wrangler": "^4.97.0"
   },
   "optionalDependencies": {
-    "@rollup/rollup-darwin-arm64": "4.60.4"
+    "@rollup/rollup-darwin-arm64": "4.61.1"
   }
 }
