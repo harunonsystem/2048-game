@@ -8,6 +8,7 @@ import type {
   TouchData,
 } from "./types";
 import translationsData from "./translations.json";
+import { trackEvent } from "./analytics";
 
 // Development-only debug functionality will be imported dynamically
 
@@ -57,12 +58,13 @@ class Game2048 {
   public gameOver: boolean;
   private tileElements: Map<number, HTMLElement>;
   private tileIdCounter: number;
+  private moveCount: number;
 
   // Achievement system
   public readonly achievementLevels: readonly GameMode[] = [
     2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288,
   ] as const;
-  public currentTargetLevel: number;
+  public currentTargetLevel: GameMode;
   private completedLevels: Set<GameMode>;
 
   // DOM elements
@@ -94,6 +96,7 @@ class Game2048 {
     this.gameOver = false;
     this.tileElements = new Map();
     this.tileIdCounter = 0;
+    this.moveCount = 0;
 
     this.currentTargetLevel = this.loadGameMode();
     this.completedLevels = new Set();
@@ -146,6 +149,10 @@ class Game2048 {
     this.setupEventListeners();
     this.applyTranslations();
     this.updateModeButtons();
+    trackEvent("game_start", {
+      mode: this.currentTargetLevel,
+      language: this.currentLanguage,
+    });
   }
 
   // Language management
@@ -158,10 +165,15 @@ class Game2048 {
   }
 
   private async toggleLanguage(): Promise<void> {
+    const previousLanguage = this.currentLanguage;
     this.currentLanguage = this.currentLanguage === "ja" ? "en" : "ja";
     this.saveLanguage();
     await this.applyTranslations();
     this.updateLanguageButton();
+    trackEvent("language_change", {
+      from: previousLanguage,
+      to: this.currentLanguage,
+    });
   }
 
   private updateLanguageButton(): void {
@@ -202,9 +214,20 @@ class Game2048 {
     document
       .getElementById("restart-btn")!
       .addEventListener("click", () => this.restart());
-    document
-      .getElementById("try-again-btn")!
-      .addEventListener("click", () => this.restart());
+    document.getElementById("try-again-btn")!.addEventListener("click", () => {
+      const isGameOver = this.gameOver;
+      trackEvent("replay_click", {
+        mode: isGameOver
+          ? this.currentTargetLevel
+          : this.achievementLevels[
+              Math.max(0, this.achievementLevels.indexOf(this.currentTargetLevel) - 1)
+            ],
+        score: this.score,
+        from: isGameOver ? "game_over" : "game_won",
+        language: this.currentLanguage,
+      });
+      this.restart();
+    });
     document
       .getElementById("lang-toggle")!
       .addEventListener("click", () => this.toggleLanguage());
@@ -294,6 +317,7 @@ class Game2048 {
     moved = moveActions[direction]();
 
     if (moved) {
+      this.moveCount++;
       this.board = newBoard;
       this.addRandomTile();
       this.updateDisplay();
@@ -517,6 +541,13 @@ class Game2048 {
               // Only show achievement and win if we hit the current target level
               if (level === this.currentTargetLevel) {
                 this.gameWon = true;
+                trackEvent("game_won", {
+                  mode: level,
+                  score: this.score,
+                  highestTile: this.getHighestTileValue(),
+                  moves: this.moveCount,
+                  language: this.currentLanguage,
+                });
                 // Update target to next level if available
                 const currentIndex = this.achievementLevels.indexOf(level);
                 if (currentIndex < this.achievementLevels.length - 1) {
@@ -556,6 +587,13 @@ class Game2048 {
 
   private async handleGameOver(): Promise<void> {
     this.gameOver = true;
+    trackEvent("game_over", {
+      mode: this.currentTargetLevel,
+      score: this.score,
+      highestTile: this.getHighestTileValue(),
+      moves: this.moveCount,
+      language: this.currentLanguage,
+    });
     if (!this.translations) return;
 
     const t = this.translations[this.currentLanguage];
@@ -691,6 +729,12 @@ class Game2048 {
     const tweetText = encodeURIComponent(text);
     const xUrl = `https://x.com/intent/tweet?text=${tweetText}`;
     window.open(xUrl, "_blank", "width=600,height=400");
+    trackEvent("share_x_click", {
+      mode: this.currentTargetLevel,
+      score: this.score,
+      highestTile: this.getHighestTileValue(),
+      language: this.currentLanguage,
+    });
   }
 
   private async copyResult(): Promise<void> {
@@ -701,6 +745,12 @@ class Game2048 {
     } catch (err) {
       this.fallbackCopyText(text);
     }
+    trackEvent("copy_result_click", {
+      mode: this.currentTargetLevel,
+      score: this.score,
+      highestTile: this.getHighestTileValue(),
+      language: this.currentLanguage,
+    });
   }
 
   private showCopyFeedback(): void {
@@ -740,12 +790,18 @@ class Game2048 {
     this.score = 0;
     this.gameWon = false;
     this.gameOver = false;
+    this.moveCount = 0;
     this.completedLevels.clear();
 
     this.hideMessage();
     this.updateScore();
     this.addRandomTile();
     this.addRandomTile();
+
+    trackEvent("game_start", {
+      mode: this.currentTargetLevel,
+      language: this.currentLanguage,
+    });
   }
 
   // Persistence
@@ -757,9 +813,13 @@ class Game2048 {
     localStorage.setItem("2048-best-score", this.bestScore.toString());
   }
 
-  private loadGameMode(): number {
+  private loadGameMode(): GameMode {
     const saved = localStorage.getItem("gameMode");
-    return saved ? parseInt(saved) : 2048; // Default to 2048 mode
+    const parsed = saved ? parseInt(saved) : 2048;
+    // Fall back to 2048 mode if the stored value is invalid
+    return this.achievementLevels.includes(parsed as GameMode)
+      ? (parsed as GameMode)
+      : 2048;
   }
 
   private saveGameMode(): void {
@@ -768,11 +828,19 @@ class Game2048 {
 
   private changeGameMode(button: HTMLButtonElement): void {
     const targetValue = parseInt(button.dataset.target!);
-    
+
     if (this.achievementLevels.includes(targetValue as GameMode)) {
-      this.currentTargetLevel = targetValue;
+      const previousMode = this.currentTargetLevel;
+      this.currentTargetLevel = targetValue as GameMode;
       this.saveGameMode();
       this.updateModeButtons();
+      if (previousMode !== targetValue) {
+        trackEvent("mode_change", {
+          from: previousMode,
+          to: targetValue,
+          language: this.currentLanguage,
+        });
+      }
       this.restart();
     }
   }

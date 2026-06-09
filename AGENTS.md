@@ -26,6 +26,6 @@ pnpm typecheck        # Check TypeScript types
 ## Architecture
 - Game logic: `Game2048` class (src/main.ts)
 - Types: src/types.ts (all game interfaces)
-- Tests: vitest 4.0.7, TestableGame2048 wrapper exposes private methods
+- Tests: vitest 4.1.7, TestableGame2048 wrapper exposes private methods
 - i18n: src/translations.json with fallback support
 - E2E: Playwright tests in tests/e2e/ with page objects

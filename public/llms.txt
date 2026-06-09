@@ -1,0 +1,51 @@
+# 2048 Game
+
+> A clean, open-source 2048 puzzle game in the browser. Slide tiles, merge same numbers, reach 2048 — or push further to 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288. No install, no ads, no account.
+
+A faithful reimplementation of the classic 2048 by Gabriele Cirulli, with optional higher-tier targets (4096 through 524288) for players who want a real challenge. Built as a single static bundle deployable to any CDN.
+
+## Core features
+
+- [Play 2048](https://2048.harunon.club/): Free 2048 puzzle game in the browser. Move tiles with arrow keys, WASD, or touch swipe.
+- [Game modes 2048–524288](https://2048.harunon.club/): Switch target between 2048 (classic), 4096, 8192, 16384, 32768, 65536, 131072, 262144, or 524288. Higher modes require exponentially more skill.
+- [Bilingual UI](https://2048.harunon.club/): English and Japanese interface.
+- [Persistent best score](https://2048.harunon.club/): Best score is saved to localStorage and persists across sessions on the same device.
+- [Share results](https://2048.harunon.club/): After a game ends, share your score to X (Twitter) or copy the result to clipboard.
+- [Responsive design](https://2048.harunon.club/): Works on desktop (keyboard) and mobile (touch swipe).
+- [Privacy-respecting analytics](https://2048.harunon.club/): Self-hosted Umami analytics, no third-party cookies, no fingerprinting, no account required.
+
+## How to play
+
+1. Use the arrow keys (or WASD) to slide all tiles in one direction
+2. Tiles with the same number merge when they collide
+3. Each merge adds the merged value to your score
+4. A new tile (2 or 4) spawns after every move
+5. Reach 2048 (or your selected target) to win
+6. Game over when the board fills up with no possible merges
+
+## Higher-tier tips
+
+- 2048 is achievable in a few minutes for new players
+- 4096 requires planning 3-4 moves ahead
+- 8192+ requires keeping one corner free and building a chain
+- 65536+ has been done by fewer than 1% of players globally
+
+## FAQ
+
+- Is it free? Yes, no ads, no premium tier, no paywall.
+- Do I need to install anything? No, it's a single static bundle.
+- Does it work offline? Once the page is loaded, yes.
+- Is my data sent anywhere? No, only your best score is stored in your browser.
+- What's the highest tile? 524288. No one has confirmed a real solve.
+- Is this the official 2048? No, this is a fan-made open-source reimplementation. The original 2048 is at [play2048.co](https://play2048.co).
+
+## Open source
+
+- [Source code on GitHub](https://github.com/harunonsystem/2048-game): MIT licensed.
+- [Issue tracker](https://github.com/harunonsystem/2048-game/issues): Bug reports and feature requests.
+
+## Contact
+
+- [GitHub Sponsors](https://github.com/sponsors/harunon): Support development
+- [Buy me a coffee](https://www.buymeacoffee.com/harunon): One-time tip
+- [GitHub profile](https://github.com/harunon): Other projects
