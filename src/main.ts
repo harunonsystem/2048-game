@@ -64,7 +64,7 @@ class Game2048 {
   public readonly achievementLevels: readonly GameMode[] = [
     2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288,
   ] as const;
-  public currentTargetLevel: number;
+  public currentTargetLevel: GameMode;
   private completedLevels: Set<GameMode>;
 
   // DOM elements
@@ -813,9 +813,13 @@ class Game2048 {
     localStorage.setItem("2048-best-score", this.bestScore.toString());
   }
 
-  private loadGameMode(): number {
+  private loadGameMode(): GameMode {
     const saved = localStorage.getItem("gameMode");
-    return saved ? parseInt(saved) : 2048; // Default to 2048 mode
+    const parsed = saved ? parseInt(saved) : 2048;
+    // Fall back to 2048 mode if the stored value is invalid
+    return this.achievementLevels.includes(parsed as GameMode)
+      ? (parsed as GameMode)
+      : 2048;
   }
 
   private saveGameMode(): void {
@@ -827,7 +831,7 @@ class Game2048 {
 
     if (this.achievementLevels.includes(targetValue as GameMode)) {
       const previousMode = this.currentTargetLevel;
-      this.currentTargetLevel = targetValue;
+      this.currentTargetLevel = targetValue as GameMode;
       this.saveGameMode();
       this.updateModeButtons();
       if (previousMode !== targetValue) {

@@ -107,9 +107,8 @@ export class DebugManager {
     this.game.score += targetValue;
 
     // Set current target to match the tile
-    const levelIndex = this.game.achievementLevels.indexOf(targetValue);
-    if (levelIndex !== -1) {
-      this.game.currentTargetLevel = levelIndex;
+    if (this.game.achievementLevels.includes(targetValue)) {
+      this.game.currentTargetLevel = targetValue;
     }
 
     this.game.checkGameState();

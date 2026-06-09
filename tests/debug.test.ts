@@ -243,8 +243,7 @@ describe("DebugManager", () => {
     it("should set current target level correctly", () => {
       debugManager["debugTriggerWin"](4096);
 
-      const expectedLevel = mockGame.achievementLevels.indexOf(4096);
-      expect(mockGame.currentTargetLevel).toBe(expectedLevel);
+      expect(mockGame.currentTargetLevel).toBe(4096);
     });
 
     it("should call checkGameState", () => {
