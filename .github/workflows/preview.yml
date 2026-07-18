@@ -4,12 +4,18 @@ on:
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pull_request_number:
+        description: 'Pull request number to deploy manually'
+        required: true
+        type: number
 
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
     # PRがオープン状態の場合のみ実行（マージ後のrebaseによる再デプロイを防止）
-    if: github.event.pull_request.state == 'open'
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.state == 'open'
     permissions:
       contents: read
       actions: read
@@ -38,7 +44,7 @@ jobs:
         id: prepare
         uses: harunonsystem/cf-workers-actions/prepare-preview-deploy@454cec0c3ee18e6b6ddb9312364b195962638089 # v1.3.1
         with:
-          worker-name: '2048-game-{branch-name}'
+          worker-name: '2048-game-pr-${{ github.event.pull_request.number || inputs.pull_request_number }}'
           domain: 'harunonsystem.workers.dev'
           environment: 'preview'
 
