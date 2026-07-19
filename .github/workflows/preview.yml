@@ -4,12 +4,18 @@ on:
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pull_request_number:
+        description: 'Pull request number to deploy manually'
+        required: true
+        type: number
 
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
     # PRがオープン状態の場合のみ実行（マージ後のrebaseによる再デプロイを防止）
-    if: github.event.pull_request.state == 'open'
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.state == 'open'
     permissions:
       contents: read
       actions: read
@@ -19,6 +25,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: refs/pull/${{ inputs.pull_request_number || github.event.pull_request.number }}/merge
 
       - name: Setup Node.js and Dependencies
         uses: ./.github/actions/setup-node-deps
@@ -38,7 +46,7 @@ jobs:
         id: prepare
         uses: harunonsystem/cf-workers-actions/prepare-preview-deploy@454cec0c3ee18e6b6ddb9312364b195962638089 # v1.3.1
         with:
-          worker-name: '2048-game-{branch-name}'
+          worker-name: '2048-game-pr-${{ github.event.pull_request.number || inputs.pull_request_number }}'
           domain: 'harunonsystem.workers.dev'
           environment: 'preview'
 
