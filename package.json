@@ -5,9 +5,9 @@
   "type": "module",
   "engines": {
     "node": ">=24.18.0",
-    "pnpm": ">=10.34.4"
+    "pnpm": ">=10.34.5"
   },
-  "packageManager": "pnpm@10.34.4",
+  "packageManager": "pnpm@10.34.5",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.61.1",
-    "@types/node": "^24.13.2",
+    "@types/node": "^24.13.3",
     "@vitest/ui": "4.1.10",
     "jsdom": "^29.1.1",
     "typescript": "^6.0.3",
