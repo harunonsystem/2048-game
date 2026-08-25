@@ -28,11 +28,11 @@
   "devDependencies": {
     "@playwright/test": "1.62.1",
     "@types/node": "^24.13.3",
-    "@vitest/ui": "4.1.10",
+    "@vitest/ui": "4.1.11",
     "jsdom": "^29.1.1",
     "typescript": "^7.0.2",
-    "vite": "^8.2.1",
-    "vitest": "4.1.10",
+    "vite": "^8.2.2",
+    "vitest": "4.1.11",
     "wrangler": "^4.124.0"
   },
   "optionalDependencies": {
