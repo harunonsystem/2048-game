@@ -10,24 +10,6 @@ import type {
 import translationsData from "./translations.json";
 import { trackEvent } from "./analytics";
 
-// Development-only debug functionality will be imported dynamically
-
-class TranslationManager {
-  private translations: Translations | null = null;
-
-  async loadTranslations(): Promise<Translations> {
-    if (this.translations) return this.translations;
-
-    this.translations = translationsData as Translations;
-    return this.translations;
-  }
-
-  getTranslation(lang: Language, key: keyof Translation): string {
-    const translations = this.translations;
-    return translations?.[lang]?.[key] || key;
-  }
-}
-
 // Umami analytics (Production only)
 function loadUmamiAnalytics(): void {
   if (!import.meta.env.PROD) return;
@@ -45,8 +27,7 @@ function loadUmamiAnalytics(): void {
 }
 
 class Game2048 {
-  private translationManager: TranslationManager;
-  private translations: Translations | null = null;
+  private readonly translations = translationsData as Translations;
   private currentLanguage: Language;
   private debugManager: any = null;
 
@@ -84,7 +65,6 @@ class Game2048 {
   private copyResultButton!: HTMLElement;
 
   constructor() {
-    this.translationManager = new TranslationManager();
     this.currentLanguage = this.loadLanguage();
 
     this.board = Array(4)
@@ -141,8 +121,7 @@ class Game2048 {
     });
   }
 
-  private async init(): Promise<void> {
-    this.translations = await this.translationManager.loadTranslations();
+  private init(): void {
     this.updateScore();
     this.addRandomTile();
     this.addRandomTile();
@@ -164,11 +143,11 @@ class Game2048 {
     localStorage.setItem("2048-language", this.currentLanguage);
   }
 
-  private async toggleLanguage(): Promise<void> {
+  private toggleLanguage(): void {
     const previousLanguage = this.currentLanguage;
     this.currentLanguage = this.currentLanguage === "ja" ? "en" : "ja";
     this.saveLanguage();
-    await this.applyTranslations();
+    this.applyTranslations();
     this.updateLanguageButton();
     trackEvent("language_change", {
       from: previousLanguage,
@@ -189,19 +168,13 @@ class Game2048 {
     }
   }
 
-  private async applyTranslations(): Promise<void> {
-    if (!this.translations) {
-      this.translations = await this.translationManager.loadTranslations();
-    }
-
+  private applyTranslations(): void {
     const elements = document.querySelectorAll<HTMLElement>("[data-i18n]");
     elements.forEach((element) => {
       const key = element.getAttribute("data-i18n") as keyof Translation;
       if (key) {
-        const translation = this.translationManager.getTranslation(
-          this.currentLanguage,
-          key,
-        );
+        const translation =
+          this.translations[this.currentLanguage]?.[key] || key;
         element.textContent = translation;
       }
     });
