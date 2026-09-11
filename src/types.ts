@@ -55,6 +55,30 @@ export interface TileData {
   isNew?: boolean;
 }
 
+export interface TileMerge {
+  survivorId: number;
+  consumedId: number;
+}
+
+export interface MoveResult {
+  board: (TileData | null)[][];
+  moved: boolean;
+  scoreDelta: number;
+  merges: TileMerge[];
+}
+
+export interface DebugGame {
+  board: (TileData | null)[][];
+  score: number;
+  gameOver: boolean;
+  readonly achievementLevels: readonly GameMode[];
+  currentTargetLevel: GameMode;
+  createTileObject(value: number, row: number, col: number): TileData;
+  removeTile(tile: TileData): void;
+  updateScore(): void;
+  checkGameState(): Promise<void>;
+}
+
 export interface TouchData {
   startX: number;
   startY: number;
