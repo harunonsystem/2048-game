@@ -1,10 +1,10 @@
 // Debug functionality - Development only
-import type { GameMode } from "./types";
+import type { DebugGame, GameMode } from "./types";
 
 export class DebugManager {
-  private game: any; // Game2048 instance
+  private game: DebugGame;
 
-  constructor(gameInstance: any) {
+  constructor(gameInstance: DebugGame) {
     this.game = gameInstance;
   }
 

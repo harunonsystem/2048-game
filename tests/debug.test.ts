@@ -5,33 +5,31 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DebugManager } from "../src/debug";
+import type { DebugGame, GameMode, TileData } from "../src/types";
 
 // Create a mock Game2048 instance for testing
-class MockGame2048 {
-  public board: Array<Array<any | null>> = Array(4)
+class MockGame2048 implements DebugGame {
+  private nextTileId = 0;
+  public board: (TileData | null)[][] = Array(4)
     .fill(null)
     .map(() => Array(4).fill(null));
   public score: number = 0;
   public gameOver: boolean = false;
-  public achievementLevels: number[] = [2048, 4096, 8192, 16384];
-  public currentTargetLevel: number = 0;
+  public readonly achievementLevels: readonly GameMode[] = [
+    2048, 4096, 8192, 16384,
+  ];
+  public currentTargetLevel: GameMode = 2048;
 
-  public createTileObject(value: number, row: number, col: number) {
+  public createTileObject(value: number, row: number, col: number): TileData {
     return {
       value,
       row,
       col,
-      id: `tile-${row}-${col}-${Date.now()}`,
-      element: document.createElement("div"),
+      id: ++this.nextTileId,
     };
   }
 
-  public removeTile(tile: any): void {
-    // Mock tile removal
-    if (tile?.element?.parentNode) {
-      tile.element.parentNode.removeChild(tile.element);
-    }
-  }
+  public removeTile(_tile: TileData): void {}
 
   public updateScore(): void {
     // Mock score update - calculate from board
@@ -45,7 +43,7 @@ class MockGame2048 {
     }
   }
 
-  public checkGameState(): void {
+  public async checkGameState(): Promise<void> {
     // Mock game state checking
     console.log("Game state checked");
   }
@@ -168,10 +166,16 @@ describe("DebugManager", () => {
 
     it("should setup event listeners for debug buttons", () => {
       // Spy on private methods
-      const gameOverSpy = vi.spyOn(debugManager as any, "debugTriggerGameOver");
-      const winSpy = vi.spyOn(debugManager as any, "debugTriggerWin");
-      const fillBoardSpy = vi.spyOn(debugManager as any, "debugFillBoard");
-      const add2048Spy = vi.spyOn(debugManager as any, "debugAdd2048Tile");
+      const debugActions = debugManager as unknown as {
+        debugTriggerGameOver(): void;
+        debugTriggerWin(targetValue: GameMode): void;
+        debugFillBoard(): void;
+        debugAdd2048Tile(): void;
+      };
+      const gameOverSpy = vi.spyOn(debugActions, "debugTriggerGameOver");
+      const winSpy = vi.spyOn(debugActions, "debugTriggerWin");
+      const fillBoardSpy = vi.spyOn(debugActions, "debugFillBoard");
+      const add2048Spy = vi.spyOn(debugActions, "debugAdd2048Tile");
 
       debugManager.setupDebugControls();
 

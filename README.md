@@ -11,8 +11,8 @@ A clean and intuitive 2048 game built with HTML, CSS, and TypeScript. Play direc
 
 1. Use arrow keys (or WASD) to move tiles in four directions
 2. When two tiles with the same number touch, they merge into one with double the value
-3. A new tile (2 or 4) appears randomly after each move
-4. Reach the 2048 tile to win the game
+3. A new tile (2 or 4) appears randomly after each successful move
+4. Reach the selected target tile (2048 by default) to win the game
 5. Game ends when no moves are possible
 
 ## 🚀 Getting Started
@@ -24,11 +24,6 @@ pnpm dev             # Start development server at http://localhost:5173
 pnpm build           # Build for production
 pnpm preview         # Preview production build
 ```
-
-### Quick Play
-1. Clone or download this repository
-2. Open `index.html` in your browser
-3. Start playing immediately!
 
 ## 🎯 Controls
 
@@ -76,7 +71,7 @@ pnpm preview         # Preview production build
 - **Vite**: Fast build tool and development server
 - **HTML5**: Semantic markup structure
 - **CSS3**: Grid Layout, Flexbox, and CSS animations
-- **Web Workers**: Background processing for game logic
+- **Cloudflare Worker**: Static asset serving with an `index.html` fallback
 - **Local Storage**: Persistent score and settings storage
 
 ## 🧪 Testing
@@ -102,11 +97,8 @@ pnpm typecheck       # TypeScript type checking
 
 ## 🚀 Deployment
 
-The game can be deployed to any static hosting service:
-- GitHub Pages
-- Netlify
-- Vercel
-- Cloudflare Pages
+The repository is configured for deployment to Cloudflare Workers. Build the
+assets with `pnpm build`, then deploy them with `pnpm exec wrangler deploy`.
 
 ## 🎪 Future Enhancements
 

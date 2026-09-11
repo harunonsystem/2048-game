@@ -6,9 +6,12 @@ import type {
   GameMode,
   TileData,
   TouchData,
+  DebugGame,
 } from "./types";
+import type { DebugManager } from "./debug";
 import translationsData from "./translations.json";
 import { trackEvent } from "./analytics";
+import { getHighestTileValue, isGameOver, moveBoard } from "./game";
 
 // Umami analytics (Production only)
 function loadUmamiAnalytics(): void {
@@ -26,10 +29,10 @@ function loadUmamiAnalytics(): void {
   document.head.appendChild(script);
 }
 
-class Game2048 {
+class Game2048 implements DebugGame {
   private readonly translations = translationsData as Translations;
   private currentLanguage: Language;
-  private debugManager: any = null;
+  private debugManager: DebugManager | null = null;
 
   // Game state
   public board: (TileData | null)[][];
@@ -277,126 +280,30 @@ class Game2048 {
   private move(direction: Direction): void {
     if (this.gameOver) return;
 
-    const newBoard = this.board.map((row) => [...row]);
-    let moved = false;
-
-    const moveActions: Record<Direction, () => boolean> = {
-      left: () => this.moveLeft(newBoard),
-      right: () => this.moveRight(newBoard),
-      up: () => this.moveUp(newBoard),
-      down: () => this.moveDown(newBoard),
-    };
-
-    moved = moveActions[direction]();
-
-    if (moved) {
+    const result = moveBoard(this.board, direction);
+    if (result.moved) {
       this.moveCount++;
-      this.board = newBoard;
+      this.score += result.scoreDelta;
+      const tilesById = new Map(
+        result.board
+          .flat()
+          .filter((tile): tile is TileData => tile !== null)
+          .map((tile) => [tile.id, tile]),
+      );
+      result.merges.forEach(({ survivorId, consumedId }) => {
+        this.removeTileElement(consumedId);
+        const survivor = tilesById.get(survivorId);
+        const element = this.tileElements.get(survivorId);
+        if (survivor && element) {
+          this.updateTileElement(element, survivor.value);
+          element.classList.add("tile-merged");
+        }
+      });
+      this.board = result.board;
       this.addRandomTile();
       this.updateDisplay();
       this.checkGameState();
     }
-  }
-
-  private moveLeft(board: (TileData | null)[][]): boolean {
-    let moved = false;
-    for (let row = 0; row < 4; row++) {
-      const result = this.slideArray(board[row]);
-      if (result.moved) moved = true;
-      board[row] = result.array;
-    }
-    return moved;
-  }
-
-  private moveRight(board: (TileData | null)[][]): boolean {
-    let moved = false;
-    for (let row = 0; row < 4; row++) {
-      const reversed = board[row].slice().reverse();
-      const result = this.slideArray(reversed);
-      if (result.moved) moved = true;
-      board[row] = result.array.reverse();
-    }
-    return moved;
-  }
-
-  private moveUp(board: (TileData | null)[][]): boolean {
-    let moved = false;
-    for (let col = 0; col < 4; col++) {
-      const column: (TileData | null)[] = [
-        board[0][col],
-        board[1][col],
-        board[2][col],
-        board[3][col],
-      ];
-      const result = this.slideArray(column);
-      if (result.moved) moved = true;
-      for (let row = 0; row < 4; row++) {
-        board[row][col] = result.array[row];
-      }
-    }
-    return moved;
-  }
-
-  private moveDown(board: (TileData | null)[][]): boolean {
-    let moved = false;
-    for (let col = 0; col < 4; col++) {
-      const column: (TileData | null)[] = [
-        board[3][col],
-        board[2][col],
-        board[1][col],
-        board[0][col],
-      ];
-      const result = this.slideArray(column);
-      if (result.moved) moved = true;
-      for (let row = 0; row < 4; row++) {
-        board[3 - row][col] = result.array[row];
-      }
-    }
-    return moved;
-  }
-
-  private slideArray(arr: (TileData | null)[]): {
-    array: (TileData | null)[];
-    moved: boolean;
-  } {
-    let filtered = arr.filter((tile): tile is TileData => tile !== null);
-    let moved = false;
-
-    // Merge tiles
-    for (let i = 0; i < filtered.length - 1; i++) {
-      if (
-        filtered[i] &&
-        filtered[i + 1] &&
-        filtered[i].value === filtered[i + 1].value
-      ) {
-        filtered[i].value *= 2;
-        this.score += filtered[i].value;
-        this.removeTile(filtered[i + 1]);
-        filtered.splice(i + 1, 1); // Remove the merged tile from array
-        moved = true;
-
-        // Add merge animation
-        const element = this.tileElements.get(filtered[i].id);
-        if (element) {
-          this.updateTileElement(element, filtered[i].value);
-          element.classList.add("tile-merged");
-        }
-      }
-    }
-
-    const result: (TileData | null)[] = [...filtered];
-    while (result.length < 4) {
-      result.push(null);
-    }
-
-    // Check if array changed
-    const originalValues = arr.map((tile) => (tile ? tile.value : null));
-    const newValues = result.map((tile) => (tile ? tile.value : null));
-    if (JSON.stringify(originalValues) !== JSON.stringify(newValues)) {
-      moved = true;
-    }
-
-    return { array: result, moved };
   }
 
   private addRandomTile(): void {
@@ -457,7 +364,7 @@ class Game2048 {
     for (let row = 0; row < 4; row++) {
       for (let col = 0; col < 4; col++) {
         const tile = this.board[row][col];
-        if (tile && (tile.row !== row || tile.col !== col)) {
+        if (tile) {
           this.moveTile(tile, row, col);
         }
       }
@@ -474,10 +381,14 @@ class Game2048 {
   }
 
   public removeTile(tileObj: TileData): void {
-    const element = this.tileElements.get(tileObj.id);
+    this.removeTileElement(tileObj.id);
+  }
+
+  private removeTileElement(tileId: number): void {
+    const element = this.tileElements.get(tileId);
     if (element) {
       element.remove();
-      this.tileElements.delete(tileObj.id);
+      this.tileElements.delete(tileId);
     }
   }
 
@@ -497,7 +408,7 @@ class Game2048 {
       await this.checkAchievements();
     }
 
-    if (this.isGameOver()) {
+    if (isGameOver(this.board)) {
       await this.handleGameOver();
     }
   }
@@ -517,7 +428,7 @@ class Game2048 {
                 trackEvent("game_won", {
                   mode: level,
                   score: this.score,
-                  highestTile: this.getHighestTileValue(),
+                  highestTile: getHighestTileValue(this.board),
                   moves: this.moveCount,
                   language: this.currentLanguage,
                 });
@@ -563,7 +474,7 @@ class Game2048 {
     trackEvent("game_over", {
       mode: this.currentTargetLevel,
       score: this.score,
-      highestTile: this.getHighestTileValue(),
+      highestTile: getHighestTileValue(this.board),
       moves: this.moveCount,
       language: this.currentLanguage,
     });
@@ -577,51 +488,6 @@ class Game2048 {
     this.showMessage(`${gameOverMsg}\n${noMovesMsg}`, false, subtitle);
   }
 
-  private isGameOver(): boolean {
-    // Check for empty cells
-    for (let row = 0; row < 4; row++) {
-      for (let col = 0; col < 4; col++) {
-        if (this.board[row][col] === null) return false;
-      }
-    }
-
-    // Check for possible merges
-    for (let row = 0; row < 4; row++) {
-      for (let col = 0; col < 4; col++) {
-        const current = this.board[row][col];
-        if (current) {
-          const neighbors = [
-            { r: row, c: col + 1 },
-            { r: row + 1, c: col },
-          ];
-
-          for (const neighbor of neighbors) {
-            if (neighbor.r < 4 && neighbor.c < 4) {
-              const neighborTile = this.board[neighbor.r][neighbor.c];
-              if (neighborTile && current.value === neighborTile.value) {
-                return false;
-              }
-            }
-          }
-        }
-      }
-    }
-    return true;
-  }
-
-  private getHighestTileValue(): number {
-    let highest = 0;
-    for (let row = 0; row < 4; row++) {
-      for (let col = 0; col < 4; col++) {
-        const tile = this.board[row][col];
-        if (tile && tile.value > highest) {
-          highest = tile.value;
-        }
-      }
-    }
-    return highest;
-  }
-
   private showMessage(
     message: string,
     isWin: boolean = false,
@@ -630,7 +496,7 @@ class Game2048 {
     this.messageText.textContent = message;
     this.resultSubtitle.textContent = subtitle;
 
-    const highestTile = this.getHighestTileValue();
+    const highestTile = getHighestTileValue(this.board);
     this.finalScoreElement.textContent = this.score.toString();
     this.resultBestScoreElement.textContent = this.bestScore.toString();
     this.highestTileElement.textContent = highestTile.toString();
@@ -676,7 +542,7 @@ class Game2048 {
 
   // Social sharing
   private generateShareText(): string {
-    const highestTile = this.getHighestTileValue();
+    const highestTile = getHighestTileValue(this.board);
     const isJapanese = this.currentLanguage === "ja";
     const gameUrl = window.location.href;
 
@@ -705,7 +571,7 @@ class Game2048 {
     trackEvent("share_x_click", {
       mode: this.currentTargetLevel,
       score: this.score,
-      highestTile: this.getHighestTileValue(),
+      highestTile: getHighestTileValue(this.board),
       language: this.currentLanguage,
     });
   }
@@ -715,25 +581,25 @@ class Game2048 {
     try {
       await navigator.clipboard.writeText(text);
       this.showCopyFeedback();
-    } catch (err) {
+    } catch {
       this.fallbackCopyText(text);
     }
     trackEvent("copy_result_click", {
       mode: this.currentTargetLevel,
       score: this.score,
-      highestTile: this.getHighestTileValue(),
+      highestTile: getHighestTileValue(this.board),
       language: this.currentLanguage,
     });
   }
 
   private showCopyFeedback(): void {
-    const originalText = this.copyResultButton.innerHTML;
-    this.copyResultButton.innerHTML = "✓";
+    const originalText = this.copyResultButton.textContent;
+    this.copyResultButton.textContent = "✓";
     this.copyResultButton.style.background =
       "linear-gradient(135deg, #10b981, #059669)";
 
     setTimeout(() => {
-      this.copyResultButton.innerHTML = originalText;
+      this.copyResultButton.textContent = originalText;
       this.copyResultButton.style.background = "";
     }, 2000);
   }
@@ -745,8 +611,8 @@ class Game2048 {
     textArea.select();
     try {
       document.execCommand("copy");
-    } catch (err) {
-      // Silently fail - copy functionality is not critical
+    } catch (error) {
+      console.warn("Copy fallback failed:", error);
     }
     document.body.removeChild(textArea);
   }

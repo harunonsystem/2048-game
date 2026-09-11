@@ -1,665 +1,230 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import translationsData from "../src/translations.json";
-import type { Language, Translations, Translation } from "../src/types";
+import { describe, expect, it } from "vitest";
+import { getHighestTileValue, isGameOver, moveBoard } from "../src/game";
+import type { TileData } from "../src/types";
 
+const tile = (id: number, value: number, row: number, col: number): TileData => ({
+  id,
+  value,
+  row,
+  col,
+});
 
-// We need to import the classes directly since they're not exported
-// Let's create a test-specific version that exposes the classes
-class MockTranslationManager {
-  async loadTranslations(): Promise<Translations> {
-    if (this.translations) return this.translations;
+describe("moveBoard", () => {
+  it("moves tiles left without mutating the input board", () => {
+    const board = [
+      [null, tile(1, 2, 0, 1), null, tile(2, 4, 0, 3)],
+      [null, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+    ];
 
-    this.translations = translationsData as Translations;
-    return this.translations;
-  }
-  private translations: Translations | null = null;
+    const result = moveBoard(board, "left");
 
-  getTranslation(lang: Language, key: keyof Translation): string {
-    const translations = this.translations;
-    return translations?.[lang]?.[key] || key;
-  }
-}
-
-// Test helper to create a testable version of Game2048
-class TestableGame2048 {
-  private translationManager: MockTranslationManager;
-  private translations: Translations | null = null;
-  private currentLanguage: Language = "ja";
-  private board: (any | null)[][] = [];
-  private score: number = 0;
-  private bestScore: number = 0;
-  private gameWon: boolean = false;
-  private gameOver: boolean = false;
-  private tileElements: Map<number, HTMLElement> = new Map();
-  private tileIdCounter: number = 0;
-  private currentTargetLevel: number = 2048; // Direct game mode value instead of index
-  private completedLevels: Set<number> = new Set();
-  public readonly achievementLevels: readonly number[] = [
-    2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288,
-  ] as const;
-
-  constructor() {
-    this.translationManager = new MockTranslationManager();
-    this.board = Array(4)
-      .fill(null)
-      .map(() => Array(4).fill(null));
-    this.initializeDOM();
-  }
-
-  private initializeDOM(): void {
-    // DOM elements are already set up in setup.ts
-  }
-
-  async init(): Promise<void> {
-    this.translations = await this.translationManager.loadTranslations();
-    this.updateScore();
-  }
-
-  // Expose private methods for testing
-  public slideArray(arr: (any | null)[]): {
-    array: (any | null)[];
-    moved: boolean;
-  } {
-    let filtered = arr.filter((tile): tile is any => tile !== null);
-    let moved = false;
-
-    // Merge tiles
-    for (let i = 0; i < filtered.length - 1; i++) {
-      if (
-        filtered[i] &&
-        filtered[i + 1] &&
-        filtered[i].value === filtered[i + 1].value
-      ) {
-        filtered[i].value *= 2;
-        this.score += filtered[i].value;
-        filtered.splice(i + 1, 1); // Remove the merged tile from array
-        moved = true;
-      }
-    }
-
-    const result: (any | null)[] = [...filtered];
-    while (result.length < 4) {
-      result.push(null);
-    }
-
-    // Check if array changed
-    const originalValues = arr.map((tile) => (tile ? tile.value : null));
-    const newValues = result.map((tile) => (tile ? tile.value : null));
-    if (JSON.stringify(originalValues) !== JSON.stringify(newValues)) {
-      moved = true;
-    }
-
-    return { array: result, moved };
-  }
-
-  public async toggleLanguage(): Promise<void> {
-    this.currentLanguage = this.currentLanguage === "ja" ? "en" : "ja";
-    await this.applyTranslations();
-    this.updateLanguageButton();
-  }
-
-  private async applyTranslations(): Promise<void> {
-    if (!this.translations) {
-      this.translations = await this.translationManager.loadTranslations();
-    }
-
-    const elements = document.querySelectorAll<HTMLElement>("[data-i18n]");
-    elements.forEach((element) => {
-      const key = element.getAttribute("data-i18n") as keyof Translation;
-      if (key) {
-        const translation = this.translationManager.getTranslation(
-          this.currentLanguage,
-          key,
-        );
-        element.textContent = translation;
-      }
-    });
-    this.updateLanguageButton();
-  }
-
-  private updateLanguageButton(): void {
-    const flagIcon = document.getElementById("flag-icon")!;
-    const langButton = document.getElementById("lang-toggle")!;
-
-    if (this.currentLanguage === "ja") {
-      flagIcon.textContent = "🇺🇸";
-      langButton.title = "Switch to English";
-    } else {
-      flagIcon.textContent = "🇯🇵";
-      langButton.title = "Switch to Japanese";
-    }
-  }
-
-  private updateScore(): void {
-    const scoreElement = document.getElementById("score")!;
-    const bestScoreElement = document.getElementById("best-score")!;
-    scoreElement.textContent = this.score.toString();
-    if (this.score > this.bestScore) {
-      this.bestScore = this.score;
-    }
-    bestScoreElement.textContent = this.bestScore.toString();
-  }
-
-  public createTestBoard(values: (number | null)[][]): void {
-    this.board = values.map((row) =>
-      row.map((val) => (val ? { value: val, id: ++this.tileIdCounter } : null)),
-    );
-  }
-
-  // FIXED: Updated to use direct game mode values instead of indices
-  public async checkAchievements(): Promise<void> {
-    for (let row = 0; row < 4; row++) {
-      for (let col = 0; col < 4; col++) {
-        const tile = this.board[row][col];
-        if (tile) {
-          for (const level of this.achievementLevels) {
-            if (tile.value >= level && !this.completedLevels.has(level)) {
-              this.completedLevels.add(level);
-
-              // Only show achievement and win if we hit the current target level
-              if (level === this.currentTargetLevel) {
-                this.gameWon = true;
-                // Update target to next level if available
-                const currentIndex = this.achievementLevels.indexOf(level);
-                if (currentIndex < this.achievementLevels.length - 1) {
-                  this.currentTargetLevel =
-                    this.achievementLevels[currentIndex + 1];
-                }
-                await this.showAchievement(level);
-                return;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  private async showAchievement(level: number): Promise<void> {
-    if (!this.translations) return;
-
-    const t = this.translations[this.currentLanguage];
-    const congratsMsg = t.congratulations;
-    const achievementKey = `achievement${level}` as keyof Translation;
-    const achievementMsg = t[achievementKey];
-
-    this.showMessage(
-      `${congratsMsg}\n${achievementMsg}`,
-      this.gameWon,
-      t.wellDone,
-    );
-  }
-
-  private showMessage(
-    message: string,
-    isWin: boolean = false,
-    subtitle: string = "",
-  ): void {
-    const messageText = document.getElementById("message-text")!;
-    const resultSubtitle = document.getElementById("result-subtitle")!;
-    const gameMessage = document.getElementById("game-message")!;
-
-    messageText.textContent = message;
-    resultSubtitle.textContent = subtitle;
-    gameMessage.classList.remove("hidden");
-  }
-
-  public generateTestShareText(): string {
-    return this.generateShareText();
-  }
-
-  private getHighestTileValue(): number {
-    let highest = 0;
-    for (let row = 0; row < 4; row++) {
-      for (let col = 0; col < 4; col++) {
-        const tile = this.board[row][col];
-        if (tile && tile.value > highest) {
-          highest = tile.value;
-        }
-      }
-    }
-    return highest;
-  }
-
-  private generateShareText(): string {
-    const highestTile = this.getHighestTileValue();
-    const isJapanese = this.currentLanguage === "ja";
-    const gameUrl = "http://localhost:5174"; // Mock URL for testing
-
-    if (isJapanese) {
-      return (
-        `2048ゲームで${highestTile}タイルを達成！\n` +
-        `スコア: ${this.score.toLocaleString()}\n` +
-        `あなたも挑戦してみませんか？\n` +
-        `${gameUrl}`
-      );
-    } else {
-      return (
-        `I reached ${highestTile} tile in 2048!\n` +
-        `Score: ${this.score.toLocaleString()}\n` +
-        `Try it yourself!\n` +
-        `${gameUrl}`
-      );
-    }
-  }
-
-  // Getters for testing
-  public getCurrentLanguage(): Language {
-    return this.currentLanguage;
-  }
-  public getScore(): number {
-    return this.score;
-  }
-  public getGameWon(): boolean {
-    return this.gameWon;
-  }
-  public getBoard(): (any | null)[][] {
-    return this.board;
-  }
-  public setCurrentTargetLevel(level: number): void {
-    this.currentTargetLevel = level;
-  }
-  public getCurrentTargetLevel(): number {
-    return this.currentTargetLevel;
-  }
-}
-
-describe("Game2048", () => {
-  let game: TestableGame2048;
-
-  beforeEach(async () => {
-    game = new TestableGame2048();
-    await game.init();
+    expect(result.board[0]).toEqual([
+      tile(1, 2, 0, 0),
+      tile(2, 4, 0, 1),
+      null,
+      null,
+    ]);
+    expect(result.moved).toBe(true);
+    expect(result.scoreDelta).toBe(0);
+    expect(result.merges).toEqual([]);
+    expect(board[0]).toEqual([
+      null,
+      tile(1, 2, 0, 1),
+      null,
+      tile(2, 4, 0, 3),
+    ]);
   });
 
-  describe("Language Switching", () => {
-    it("should toggle language from Japanese to English", async () => {
-      expect(game.getCurrentLanguage()).toBe("ja");
+  it("merges one pair and reports its score and tile IDs", () => {
+    const board = [
+      [tile(1, 2, 0, 0), tile(2, 2, 0, 1), null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+    ];
 
-      await game.toggleLanguage();
+    const result = moveBoard(board, "left");
 
-      expect(game.getCurrentLanguage()).toBe("en");
-
-      // Check flag icon changed
-      const flagIcon = document.getElementById("flag-icon")!;
-      expect(flagIcon.textContent).toBe("🇯🇵");
-    });
-
-    it("should toggle language from English to Japanese", async () => {
-      // First toggle to English
-      await game.toggleLanguage();
-      expect(game.getCurrentLanguage()).toBe("en");
-
-      // Then toggle back to Japanese
-      await game.toggleLanguage();
-
-      expect(game.getCurrentLanguage()).toBe("ja");
-
-      // Check flag icon changed back
-      const flagIcon = document.getElementById("flag-icon")!;
-      expect(flagIcon.textContent).toBe("🇺🇸");
-    });
-
-    it("should apply translations when language changes", async () => {
-      // Add a test element with translation key
-      const testElement = document.createElement("div");
-      testElement.setAttribute("data-i18n", "congratulations");
-      document.body.appendChild(testElement);
-
-      await game.toggleLanguage(); // Switch to English
-
-      expect(testElement.textContent).toBe("Congratulations!");
-    });
+    expect(result.board[0]).toEqual([tile(1, 4, 0, 0), null, null, null]);
+    expect(result.scoreDelta).toBe(4);
+    expect(result.merges).toEqual([{ survivorId: 1, consumedId: 2 }]);
+    expect(board[0][0]?.value).toBe(2);
   });
 
-  describe("Tile Calculations", () => {
-    it("should merge two identical tiles correctly", () => {
-      const input = [{ value: 2, id: 1 }, { value: 2, id: 2 }, null, null];
+  it("moves right and keeps the rightmost tile ID when merging", () => {
+    const board = [
+      [tile(1, 2, 0, 0), null, tile(2, 2, 0, 2), null],
+      [null, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+    ];
 
-      const result = game.slideArray(input);
+    const result = moveBoard(board, "right");
 
-      expect(result.array[0]).toEqual({ value: 4, id: 1 });
-      expect(result.array[1]).toBe(null);
-      expect(result.array[2]).toBe(null);
-      expect(result.array[3]).toBe(null);
-      expect(result.moved).toBe(true);
-      expect(game.getScore()).toBe(4);
-    });
+    expect(result.board[0]).toEqual([null, null, null, tile(2, 4, 0, 3)]);
+    expect(result.merges).toEqual([{ survivorId: 2, consumedId: 1 }]);
+  });
 
-    it("should not merge different value tiles", () => {
-      const input = [{ value: 2, id: 1 }, { value: 4, id: 2 }, null, null];
-
-      const result = game.slideArray(input);
-
-      expect(result.array[0]).toEqual({ value: 2, id: 1 });
-      expect(result.array[1]).toEqual({ value: 4, id: 2 });
-      expect(result.array[2]).toBe(null);
-      expect(result.array[3]).toBe(null);
-      expect(result.moved).toBe(false);
-      expect(game.getScore()).toBe(0);
-    });
-
-    it("should merge multiple pairs correctly", () => {
-      const input = [
-        { value: 2, id: 1 },
-        { value: 2, id: 2 },
-        { value: 4, id: 3 },
-        { value: 4, id: 4 },
-      ];
-
-      const result = game.slideArray(input);
-
-      expect(result.array[0]).toEqual({ value: 4, id: 1 });
-      expect(result.array[1]).toEqual({ value: 8, id: 3 });
-      expect(result.array[2]).toBe(null);
-      expect(result.array[3]).toBe(null);
-      expect(result.moved).toBe(true);
-      expect(game.getScore()).toBe(12); // 4 + 8
-    });
-
-    it("should not merge same tile twice in one move", () => {
-      const input = [
-        { value: 2, id: 1 },
-        { value: 2, id: 2 },
-        { value: 4, id: 3 },
+  it("merges each tile at most once", () => {
+    const board = [
+      [
+        tile(1, 2, 0, 0),
+        tile(2, 2, 0, 1),
+        tile(3, 4, 0, 2),
         null,
-      ];
+      ],
+      [null, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+    ];
 
-      const result = game.slideArray(input);
+    const result = moveBoard(board, "left");
 
-      expect(result.array[0]).toEqual({ value: 4, id: 1 });
-      expect(result.array[1]).toEqual({ value: 4, id: 3 });
-      expect(result.array[2]).toBe(null);
-      expect(result.array[3]).toBe(null);
-      expect(result.moved).toBe(true);
-      expect(game.getScore()).toBe(4);
-    });
+    expect(result.board[0]).toEqual([
+      tile(1, 4, 0, 0),
+      tile(3, 4, 0, 1),
+      null,
+      null,
+    ]);
+    expect(result.scoreDelta).toBe(4);
   });
 
-  describe("2048 Achievement", () => {
-    it("should show result when 2048 tile is achieved", async () => {
-      // Create a board with a 2048 tile
-      game.createTestBoard([
-        [2048, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
+  it("merges multiple independent pairs", () => {
+    const board = [
+      [
+        tile(1, 2, 0, 0),
+        tile(2, 2, 0, 1),
+        tile(3, 4, 0, 2),
+        tile(4, 4, 0, 3),
+      ],
+      [null, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+    ];
 
-      await game.checkAchievements();
+    const result = moveBoard(board, "left");
 
-      expect(game.getGameWon()).toBe(true);
-
-      // Check that message is displayed
-      const gameMessage = document.getElementById("game-message")!;
-      expect(gameMessage.classList.contains("hidden")).toBe(false);
-
-      const messageText = document.getElementById("message-text")!;
-      expect(messageText.textContent).toContain("おめでとうございます");
-      expect(messageText.textContent).toContain("2048達成！");
-    });
-
-    it("should show English result when language is English", async () => {
-      // Switch to English first
-      await game.toggleLanguage();
-
-      // Create a board with a 2048 tile
-      game.createTestBoard([
-        [2048, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
-
-      await game.checkAchievements();
-
-      expect(game.getGameWon()).toBe(true);
-
-      const messageText = document.getElementById("message-text")!;
-      expect(messageText.textContent).toContain("Congratulations");
-      expect(messageText.textContent).toContain("You reached 2048!");
-    });
-
-    it("should not trigger 2048 achievement for lower tiles", async () => {
-      // Create a board with tiles less than 2048
-      game.createTestBoard([
-        [1024, 512, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
-
-      await game.checkAchievements();
-
-      expect(game.getGameWon()).toBe(false);
-
-      // Check that message is not displayed
-      const gameMessage = document.getElementById("game-message")!;
-      expect(gameMessage.classList.contains("hidden")).toBe(true);
-    });
+    expect(result.board[0]).toEqual([
+      tile(1, 4, 0, 0),
+      tile(3, 8, 0, 1),
+      null,
+      null,
+    ]);
+    expect(result.scoreDelta).toBe(12);
+    expect(result.merges).toEqual([
+      { survivorId: 1, consumedId: 2 },
+      { survivorId: 3, consumedId: 4 },
+    ]);
   });
 
-  describe("Game Mode Win Conditions", () => {
-    it("should not win at 2048 when in 4096 mode", async () => {
-      // Set target to 4096 mode
-      game.setCurrentTargetLevel(4096);
+  it("moves and merges upward", () => {
+    const board = [
+      [null, tile(1, 8, 0, 1), null, null],
+      [null, null, null, null],
+      [null, tile(2, 8, 2, 1), null, null],
+      [null, null, null, null],
+    ];
 
-      // Create a board with a 2048 tile
-      game.createTestBoard([
-        [2048, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
+    const result = moveBoard(board, "up");
 
-      await game.checkAchievements();
-
-      // Should NOT win at 2048 when target is 4096
-      expect(game.getGameWon()).toBe(false);
-
-      // No achievement message should be displayed (2048 is not the target in 4096 mode)
-      const gameMessage = document.getElementById("game-message")!;
-      expect(gameMessage.classList.contains("hidden")).toBe(true);
-    });
-
-    it("should win at 4096 when in 4096 mode", async () => {
-      // Set target to 4096 mode
-      game.setCurrentTargetLevel(4096);
-
-      // Create a board with a 4096 tile
-      game.createTestBoard([
-        [4096, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
-
-      await game.checkAchievements();
-
-      // Should win at 4096 when target is 4096
-      expect(game.getGameWon()).toBe(true);
-
-      // Check that message is displayed
-      const gameMessage = document.getElementById("game-message")!;
-      expect(gameMessage.classList.contains("hidden")).toBe(false);
-    });
-
-    it("should not win at 2048 when in 8192 mode", async () => {
-      // Set target to 8192 mode
-      game.setCurrentTargetLevel(8192);
-
-      // Create a board with a 2048 tile
-      game.createTestBoard([
-        [2048, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
-
-      await game.checkAchievements();
-
-      // Should NOT win at 2048 when target is 8192
-      expect(game.getGameWon()).toBe(false);
-    });
-
-    it("should not win at 4096 when in 8192 mode", async () => {
-      // Set target to 8192 mode
-      game.setCurrentTargetLevel(8192);
-
-      // Create a board with a 4096 tile
-      game.createTestBoard([
-        [4096, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
-
-      await game.checkAchievements();
-
-      // Should NOT win at 4096 when target is 8192
-      expect(game.getGameWon()).toBe(false);
-    });
-
-    it("should win at 8192 when in 8192 mode", async () => {
-      // Set target to 8192 mode
-      game.setCurrentTargetLevel(8192);
-
-      // Create a board with a 8192 tile
-      game.createTestBoard([
-        [8192, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
-
-      await game.checkAchievements();
-
-      // Should win at 8192 when target is 8192
-      expect(game.getGameWon()).toBe(true);
-    });
-
-    it("should win at 131072 when in 131072 mode", async () => {
-      // Set target to 131072 mode
-      game.setCurrentTargetLevel(131072);
-
-      // Create a board with a 131072 tile
-      game.createTestBoard([
-        [131072, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
-
-      await game.checkAchievements();
-
-      // Should win at 131072 when target is 131072
-      expect(game.getGameWon()).toBe(true);
-
-      // Check that message is displayed
-      const gameMessage = document.getElementById("game-message")!;
-      expect(gameMessage.classList.contains("hidden")).toBe(false);
-    });
-
-    it("should win at 262144 when in 262144 mode", async () => {
-      // Set target to 262144 mode
-      game.setCurrentTargetLevel(262144);
-
-      // Create a board with a 262144 tile
-      game.createTestBoard([
-        [262144, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
-
-      await game.checkAchievements();
-
-      // Should win at 262144 when target is 262144
-      expect(game.getGameWon()).toBe(true);
-
-      // Check that message is displayed
-      const gameMessage = document.getElementById("game-message")!;
-      expect(gameMessage.classList.contains("hidden")).toBe(false);
-    });
-
-    it("should win at 524288 when in 524288 mode", async () => {
-      // Set target to 524288 mode
-      game.setCurrentTargetLevel(524288);
-
-      // Create a board with a 524288 tile
-      game.createTestBoard([
-        [524288, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
-
-      await game.checkAchievements();
-
-      // Should win at 524288 when target is 524288
-      expect(game.getGameWon()).toBe(true);
-
-      // Check that message is displayed
-      const gameMessage = document.getElementById("game-message")!;
-      expect(gameMessage.classList.contains("hidden")).toBe(false);
-    });
-
-    it("should not win at lower tiles when in 131072 mode", async () => {
-      // Set target to 131072 mode
-      game.setCurrentTargetLevel(131072);
-
-      // Create a board with a 65536 tile
-      game.createTestBoard([
-        [65536, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
-
-      await game.checkAchievements();
-
-      // Should NOT win at 65536 when target is 131072
-      expect(game.getGameWon()).toBe(false);
-    });
+    expect(result.board[0][1]).toEqual(tile(1, 16, 0, 1));
+    expect(result.board[1][1]).toBeNull();
+    expect(result.merges).toEqual([{ survivorId: 1, consumedId: 2 }]);
   });
 
-  describe("Share Text with URL", () => {
-    it("should include URL in Japanese share text", () => {
-      // Set up game state
-      game.createTestBoard([
-        [2048, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
+  it("moves down and keeps the bottommost tile ID when merging", () => {
+    const board = [
+      [null, null, tile(1, 8, 0, 2), null],
+      [null, null, tile(2, 8, 1, 2), null],
+      [null, null, null, null],
+      [null, null, null, null],
+    ];
 
-      const shareText = game.generateTestShareText();
+    const result = moveBoard(board, "down");
 
-      expect(shareText).toContain("2048ゲームで2048タイルを達成！");
-      expect(shareText).toContain("スコア: 0");
-      expect(shareText).toContain("あなたも挑戦してみませんか？");
-      expect(shareText).toContain("http://localhost:5174");
-    });
+    expect(result.board[3][2]).toEqual(tile(2, 16, 3, 2));
+    expect(result.board[2][2]).toBeNull();
+    expect(result.merges).toEqual([{ survivorId: 2, consumedId: 1 }]);
+  });
 
-    it("should include URL in English share text", async () => {
-      // Switch to English first
-      await game.toggleLanguage();
+  it("reports an unchanged board as a no-op", () => {
+    const board = [
+      [tile(1, 2, 0, 0), tile(2, 4, 0, 1), null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+    ];
 
-      // Set up game state
-      game.createTestBoard([
-        [4096, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-        [null, null, null, null],
-      ]);
+    const result = moveBoard(board, "left");
 
-      const shareText = game.generateTestShareText();
-
-      expect(shareText).toContain("I reached 4096 tile in 2048!");
-      expect(shareText).toContain("Score: 0");
-      expect(shareText).toContain("Try it yourself!");
-      expect(shareText).toContain("http://localhost:5174");
-    });
+    expect(result.moved).toBe(false);
+    expect(result.scoreDelta).toBe(0);
+    expect(result.merges).toEqual([]);
+    expect(result.board).toEqual(board);
+    expect(result.board).not.toBe(board);
+    expect(result.board[0][0]).not.toBe(board[0][0]);
   });
 });
 
+describe("isGameOver", () => {
+  it("returns true for a full board with no adjacent matches", () => {
+    const values = [
+      [2, 4, 2, 4],
+      [4, 2, 4, 2],
+      [2, 4, 2, 4],
+      [4, 2, 4, 2],
+    ];
+    const board = values.map((row, rowIndex) =>
+      row.map((value, colIndex) =>
+        tile(rowIndex * 4 + colIndex + 1, value, rowIndex, colIndex),
+      ),
+    );
+
+    expect(isGameOver(board)).toBe(true);
+  });
+
+  it("returns false when an empty cell remains", () => {
+    const board = Array.from({ length: 4 }, () =>
+      Array<TileData | null>(4).fill(null),
+    );
+
+    expect(isGameOver(board)).toBe(false);
+  });
+
+  it("returns false when horizontal or vertical merges remain", () => {
+    const horizontal = [
+      [tile(1, 2, 0, 0), tile(2, 2, 0, 1), tile(3, 4, 0, 2), tile(4, 8, 0, 3)],
+      [tile(5, 4, 1, 0), tile(6, 8, 1, 1), tile(7, 16, 1, 2), tile(8, 32, 1, 3)],
+      [tile(9, 8, 2, 0), tile(10, 16, 2, 1), tile(11, 32, 2, 2), tile(12, 64, 2, 3)],
+      [tile(13, 16, 3, 0), tile(14, 32, 3, 1), tile(15, 64, 3, 2), tile(16, 128, 3, 3)],
+    ];
+    const vertical = horizontal.map((row) => row.map((currentTile) => ({ ...currentTile })));
+    vertical[0][0].value = 4;
+
+    expect(isGameOver(horizontal)).toBe(false);
+    expect(isGameOver(vertical)).toBe(false);
+  });
+});
+
+describe("getHighestTileValue", () => {
+  it("returns the largest tile value", () => {
+    const board = [
+      [tile(1, 2, 0, 0), tile(2, 64, 0, 1), null, null],
+      [null, tile(3, 16, 1, 1), null, null],
+      [null, null, null, null],
+      [null, null, null, null],
+    ];
+
+    expect(getHighestTileValue(board)).toBe(64);
+  });
+
+  it("returns zero for an empty board", () => {
+    const board = Array.from({ length: 4 }, () =>
+      Array<TileData | null>(4).fill(null),
+    );
+
+    expect(getHighestTileValue(board)).toBe(0);
+  });
+});
