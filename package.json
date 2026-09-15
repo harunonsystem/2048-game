@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
-    "@types/node": "^24.13.3",
+    "@types/node": "^24.13.4",
     "@vitest/ui": "4.1.11",
     "jsdom": "^30.0.1",
     "typescript": "^7.0.2",
@@ -36,6 +36,6 @@
     "wrangler": "^4.130.0"
   },
   "optionalDependencies": {
-    "@rollup/rollup-darwin-arm64": "4.63.1"
+    "@rollup/rollup-darwin-arm64": "4.63.2"
   }
 }
