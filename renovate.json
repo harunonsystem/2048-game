@@ -23,26 +23,6 @@
   "prHourlyLimit": 0,
   "packageRules": [
     {
-      "description": "Security updates - immediate",
-      "matchUpdateTypes": [
-        "patch"
-      ],
-      "matchCurrentVersion": "!/^0/",
-      "matchDepTypes": [
-        "dependencies",
-        "devDependencies"
-      ],
-      "matchDatasources": [
-        "npm"
-      ],
-      "minimumReleaseAge": "0 days",
-      "labels": [
-        "security",
-        "dependencies"
-      ],
-      "automerge": false
-    },
-    {
       "description": "GitHub Actions - weekly with longer wait",
       "matchManagers": [
         "github-actions"
@@ -108,5 +88,8 @@
         "/^wrangler$/"
       ]
     }
-  ]
+  ],
+  "npm": {
+    "minimumReleaseAgePackageManager": "7 days"
+  }
 }
