@@ -1,7 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>harunonsystem/.github:renovate-config",
+    "local>harunonsystem/.github:renovate-config.jsonc",
+    "local>harunonsystem/.github:renovate-npm-lockfile.jsonc",
     "helpers:pinGitHubActionDigestsToSemver"
   ],
   "rangeStrategy": "bump",
@@ -21,26 +22,6 @@
   "prConcurrentLimit": 10,
   "prHourlyLimit": 0,
   "packageRules": [
-    {
-      "description": "Security updates - immediate",
-      "matchUpdateTypes": [
-        "patch"
-      ],
-      "matchCurrentVersion": "!/^0/",
-      "matchDepTypes": [
-        "dependencies",
-        "devDependencies"
-      ],
-      "matchDatasources": [
-        "npm"
-      ],
-      "minimumReleaseAge": "0 days",
-      "labels": [
-        "security",
-        "dependencies"
-      ],
-      "automerge": false
-    },
     {
       "description": "GitHub Actions - weekly with longer wait",
       "matchManagers": [
@@ -107,5 +88,8 @@
         "/^wrangler$/"
       ]
     }
-  ]
+  ],
+  "npm": {
+    "minimumReleaseAgePackageManager": "7 days"
+  }
 }
