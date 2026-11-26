@@ -22,6 +22,15 @@ jobs:
         uses: ./.github/actions/test-and-build
         with:
           run-e2e: "true"
+          umami-website-id: f9a09410-883c-45be-94b4-18ab37927abd
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+          if-no-files-found: error
 
   deploy-production:
     runs-on: ubuntu-latest
@@ -41,10 +50,11 @@ jobs:
       - name: Setup Node.js and Dependencies
         uses: ./.github/actions/setup-node-deps
 
-      - name: Build for deployment
-        uses: ./.github/actions/test-and-build
+      - name: Download build artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          skip-tests: "true"
+          name: dist
+          path: dist/
 
       - name: Deploy to Production
         uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3

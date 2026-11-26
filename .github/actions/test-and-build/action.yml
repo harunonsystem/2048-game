@@ -10,6 +10,10 @@ inputs:
     description: "Run E2E tests with Playwright"
     required: false
     default: "false"
+  umami-website-id:
+    description: "Umami website ID to embed in the production build"
+    required: false
+    default: ""
 
 outputs:
   build-success:
@@ -31,6 +35,8 @@ runs:
     - name: Build project
       id: build
       shell: bash
+      env:
+        VITE_UMAMI_WEBSITE_ID_2048_GAME: ${{ inputs.umami-website-id }}
       run: pnpm build
 
     - name: Install Playwright Browsers
